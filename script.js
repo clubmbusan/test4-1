@@ -105,6 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+ // ===== 신고하기 버튼 토글 이벤트 추가 =====
+  document.getElementById('reportToggleButton').addEventListener('click', () => {
+    const reportSection = document.getElementById('reportSection');
+    if (reportSection.style.display === 'none' || reportSection.style.display === '') {
+      reportSection.style.display = 'block';
+    } else {
+      reportSection.style.display = 'none';
+    }
+  });
+
   // -------------------------
   // 매매모달 관련 이벤트 처리
   // -------------------------
