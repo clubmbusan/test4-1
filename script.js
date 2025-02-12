@@ -319,33 +319,34 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('giftModal').style.display = 'none';
     });
 
-  // === 신고하기 모달 관련 코드 ===
-const reportModal = document.getElementById('reportModal'); // 신고하기 모달
-const reportButton = document.getElementById('submitReportButton'); // 신고하기 버튼 (화면에 표시되는 버튼)
-const closeReportModal = document.getElementById('closeReportModal'); // 신고 모달 닫기 버튼
+// === 신고하기 모달 관련 코드 ===
+document.addEventListener('DOMContentLoaded', () => {
+    const reportModal = document.getElementById('reportModal'); // 신고하기 모달
+    const submitReportButton = document.getElementById('submitReportConfirm'); // 신고 제출 버튼 (올바른 ID)
+    const closeReportModal = document.getElementById('closeReportModal'); // 신고 모달 닫기 버튼
 
-// 신고하기 버튼 클릭 시 신고 모달 열기
-reportButton.addEventListener('click', () => {
-    reportModal.style.display = 'flex'; // 신고 모달 표시
-});
+    if (reportModal && submitReportButton && closeReportModal) {
+        // 신고 제출 버튼 클릭 시 신고 모달 닫기 및 입력된 신고 정보 확인
+        submitReportButton.addEventListener('click', () => {
+            const reportDate = document.getElementById('reportDate').value;
+            const reportDeadline = document.getElementById('reportDeadline').value;
 
-// 신고 모달 닫기 버튼 클릭 시 신고 모달 닫기
-closeReportModal.addEventListener('click', () => {
-    reportModal.style.display = 'none';
-});
+            if (!reportDate) {
+                alert('신고일을 입력하세요.');
+                return;
+            }
 
-// 신고 제출 버튼 클릭 이벤트
-document.getElementById('submitReportConfirm').addEventListener('click', () => {
-    const reportDate = document.getElementById('reportDate').value;
-    const reportDeadline = document.getElementById('reportDeadline').value;
+            alert(`신고일: ${reportDate}\n신고 기한: ${reportDeadline}`);
+            reportModal.style.display = 'none'; // 신고 모달 닫기
+        });
 
-    if (!reportDate) {
-        alert('신고일을 입력하세요.');
-        return;
+        // 신고 모달 닫기 버튼 클릭 이벤트
+        closeReportModal.addEventListener('click', () => {
+            reportModal.style.display = 'none';
+        });
+    } else {
+        console.error('신고 모달 또는 버튼 요소가 누락되었습니다.');
     }
-
-    alert(`신고가 완료되었습니다.\n신고일: ${reportDate}\n신고 기한: ${reportDeadline}`);
-    reportModal.style.display = 'none'; // 신고 모달 닫기
 });
 
     // === 계산하기 버튼: 최종 계산 ===
