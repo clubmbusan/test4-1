@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       reportSection.style.display = 'none';
     }
+});
 
   // -------------------------
   // 매매모달 관련 이벤트 처리
@@ -396,4 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <p>가산세 (연체): ${penaltyTax.toLocaleString()} 원</p>
       <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
     `;
+  });
 });
+
+
