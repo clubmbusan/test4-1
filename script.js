@@ -289,7 +289,7 @@ document.getElementById('closeOriginalModal').addEventListener('click', () => {
 // === 신고하기 모달 관련 코드 ===
 document.addEventListener('DOMContentLoaded', () => {
     const reportModal = document.getElementById('reportModal'); // 신고하기 모달
-    const openReportButton = document.getElementById('submitReportButton'); // 신고하기 버튼
+    const openReportButton = document.getElementById('reportButton'); // 신고하기 버튼
     const submitReportButton = document.getElementById('submitReportConfirm'); // 신고 제출 버튼
     const closeReportModal = document.getElementById('closeReportModal'); // 신고 모달 닫기 버튼
 
