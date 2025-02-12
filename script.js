@@ -322,11 +322,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // === 신고하기 모달 관련 코드 ===
 document.addEventListener('DOMContentLoaded', () => {
     const reportModal = document.getElementById('reportModal'); // 신고하기 모달
-    const submitReportButton = document.getElementById('submitReportConfirm'); // 신고 제출 버튼 (올바른 ID)
+    const openReportButton = document.getElementById('submitReportButton'); // 신고하기 버튼
+    const submitReportButton = document.getElementById('submitReportConfirm'); // 신고 제출 버튼
     const closeReportModal = document.getElementById('closeReportModal'); // 신고 모달 닫기 버튼
 
-    if (reportModal && submitReportButton && closeReportModal) {
-        // 신고 제출 버튼 클릭 시 신고 모달 닫기 및 입력된 신고 정보 확인
+    if (reportModal && openReportButton && submitReportButton && closeReportModal) {
+        // 신고하기 버튼 클릭 시 신고 모달 열기
+        openReportButton.addEventListener('click', () => {
+            reportModal.style.display = 'flex';
+        });
+
+        // 신고 제출 버튼 클릭 시 입력 확인 및 신고 모달 닫기
         submitReportButton.addEventListener('click', () => {
             const reportDate = document.getElementById('reportDate').value;
             const reportDeadline = document.getElementById('reportDeadline').value;
