@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 신고 토글 이벤트 추가 끝 =====
 
   // [7] 매매모달 관련 이벤트 처리 (중복 제거됨)
-  const saleButton = document.getElementById('saleButton');
+const saleButton = document.getElementById('saleButton'); // 한 번만 선언
   const saleModal = document.getElementById('saleModal');
   const confirmSaleType = document.getElementById('confirmSaleType');
   const closeSaleModal = document.getElementById('closeSaleModal');
@@ -133,12 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   closeSaleModal.addEventListener('click', () => {
     saleModal.style.display = 'none';
-  });
-
-  window.addEventListener('click', (e) => {
-    if (e.target === saleModal) {
-      saleModal.style.display = 'none';
-    }
   });
 
   // [8] 증여 모달 관련 코드
