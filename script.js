@@ -113,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       reportSection.style.display = 'none';
     }
-  });
 
   // -------------------------
   // 매매모달 관련 이벤트 처리
