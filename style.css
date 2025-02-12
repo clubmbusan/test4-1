@@ -150,3 +150,12 @@ button:hover {
 .hidden {
   display: none;
 }
+
+#submitReportButton {
+  background-color: skyblue;
+  color: #000; /* 필요하면 텍스트 색상도 조정 */
+  /* 필요한 다른 스타일 예: 패딩, 폰트 사이즈 등 */
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+}
