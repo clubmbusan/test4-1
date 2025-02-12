@@ -286,6 +286,8 @@ document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
 });
 
+
+
 // === 후반부 시작 DOMContentLoaded: HTML DOM 로드 후 실행 ===
 document.addEventListener('DOMContentLoaded', () => {
     // === 모달의 "확인" 버튼: 취득세 계산 및 저장 ===
@@ -316,6 +318,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // 모달 닫기
         document.getElementById('giftModal').style.display = 'none';
     });
+
+  // === 신고하기 모달 관련 코드 ===
+const reportModal = document.getElementById('reportModal'); // 신고하기 모달
+const reportButton = document.getElementById('submitReportButton'); // 신고하기 버튼 (화면에 표시되는 버튼)
+const closeReportModal = document.getElementById('closeReportModal'); // 신고 모달 닫기 버튼
+
+// 신고하기 버튼 클릭 시 신고 모달 열기
+reportButton.addEventListener('click', () => {
+    reportModal.style.display = 'flex'; // 신고 모달 표시
+});
+
+// 신고 모달 닫기 버튼 클릭 시 신고 모달 닫기
+closeReportModal.addEventListener('click', () => {
+    reportModal.style.display = 'none';
+});
+
+// 신고 제출 버튼 클릭 이벤트
+document.getElementById('submitReportConfirm').addEventListener('click', () => {
+    const reportDate = document.getElementById('reportDate').value;
+    const reportDeadline = document.getElementById('reportDeadline').value;
+
+    if (!reportDate) {
+        alert('신고일을 입력하세요.');
+        return;
+    }
+
+    alert(`신고가 완료되었습니다.\n신고일: ${reportDate}\n신고 기한: ${reportDeadline}`);
+    reportModal.style.display = 'none'; // 신고 모달 닫기
+});
 
     // === 계산하기 버튼: 최종 계산 ===
     document.getElementById('calculateButton').addEventListener('click', () => {
