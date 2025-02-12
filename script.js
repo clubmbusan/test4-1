@@ -105,6 +105,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// ===== 새로운 신고하기 버튼 토글 이벤트 추가 =====
+// 신고하기 버튼(reportToggleButton)을 클릭하면, 숨겨진 신고 정보(reportSection) 영역을 토글(펼치기/숨기기) 합니다.
+document.getElementById('reportToggleButton').addEventListener('click', () => {
+  const reportSection = document.getElementById('reportSection');
+  if (reportSection.style.display === 'none' || reportSection.style.display === '') {
+    reportSection.style.display = 'block';
+  } else {
+    reportSection.style.display = 'none';
+  }
+});
+// ===== 신고 토글 이벤트 추가 끝 =====
+
+// [7] 매매모달 관련 이벤트 처리 코드 시작
+const saleButton = document.getElementById('saleButton');
+// ... 이하 매매모달 관련 코드 계속
+
   // -------------------------
   // 매매모달 관련 이벤트 처리
   // -------------------------
