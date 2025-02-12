@@ -151,11 +151,12 @@ button:hover {
   display: none;
 }
 
+/* 신고하기 버튼 */
 #submitReportButton {
-  background-color: skyblue;
-  color: #000; /* 필요하면 텍스트 색상도 조정 */
-  /* 필요한 다른 스타일 예: 패딩, 폰트 사이즈 등 */
-  padding: 10px 15px;
+  background-color: red;
+  color: white;        /* 텍스트 색상 */
+  margin-top: 15px;    /* 여백 */
+  padding: 10px 15px;  /* 버튼 안쪽 여백 */
   border: none;
-  border-radius: 5px;
+  border-radius: 5px;  /* 모서리를 둥글게 (선택) */
 }
