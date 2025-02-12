@@ -293,34 +293,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitReportButton = document.getElementById('submitReportConfirm'); // 신고 제출 버튼
     const closeReportModal = document.getElementById('closeReportModal'); // 신고 모달 닫기 버튼
 
-    if (reportModal && openReportButton && submitReportButton && closeReportModal) {
-        // 신고하기 버튼 클릭 시 신고 모달 열기
-        openReportButton.addEventListener('click', () => {
-            reportModal.style.display = 'flex';
-        });
-
-        // 신고 제출 버튼 클릭 시 입력 확인 및 신고 모달 닫기
-        submitReportButton.addEventListener('click', () => {
-            const reportDate = document.getElementById('reportDate').value;
-            const reportDeadline = document.getElementById('reportDeadline').value;
-
-            if (!reportDate) {
-                alert('신고일을 입력하세요.');
-                return;
-            }
-
-            alert(`신고일: ${reportDate}\n신고 기한: ${reportDeadline}`);
-            reportModal.style.display = 'none'; // 신고 모달 닫기
-        });
-
-        // 신고 모달 닫기 버튼 클릭 이벤트
-        closeReportModal.addEventListener('click', () => {
-            reportModal.style.display = 'none';
-        });
-    } else {
-        console.error('신고 모달 또는 버튼 요소가 누락되었습니다.');
-    }
+   // 신고하기 버튼 클릭 시 모달 열기
+openReportButton.addEventListener('click', () => {
+  reportModal.style.display = 'flex'; // or 'block'
 });
+
+// "신고 제출" 버튼
+submitReportButton.addEventListener('click', () => {
+  // 신고일(reportDate), 신고기한(reportDeadline) 가져오기 등 처리
+  const reportDate = document.getElementById('reportDate').value;
+  const reportDeadline = document.getElementById('reportDeadline').value;
+  
+  if (!reportDate) {
+    alert('신고일을 입력하세요.');
+    return;
+  }
+
+  // 로직 처리 후 모달 닫기
+  alert(`신고일: ${reportDate}\n신고기한: ${reportDeadline}\n신고가 완료되었습니다.`);
+  reportModal.style.display = 'none';
+});
+
+// "닫기" 버튼
+closeReportModal.addEventListener('click', () => {
+  reportModal.style.display = 'none';
+});
+
+// 모달 영역 바깥 클릭 시 닫기 (선택 사항)
+window.addEventListener('click', (e) => {
+  if (e.target === reportModal) {
+    reportModal.style.display = 'none';
+  }
+});
+
 
 // === 후반부 시작 DOMContentLoaded: HTML DOM 로드 후 실행 ===
 document.addEventListener('DOMContentLoaded', () => {
