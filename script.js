@@ -115,45 +115,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-  // -------------------------
-  // 매매모달 관련 이벤트 처리
-  // -------------------------
-  const saleButton = document.getElementById('saleButton');
-  const saleModal = document.getElementById('saleModal');
-  const confirmSaleType = document.getElementById('confirmSaleType');
-  const closeSaleModal = document.getElementById('closeSaleModal');
+ // -------------------------
+// 매매모달 관련 이벤트 처리 (업데이트된 매매 표준세 적용)
+// -------------------------
+const saleButton = document.getElementById('saleButton');
+const saleModal = document.getElementById('saleModal');
+const confirmSaleType = document.getElementById('confirmSaleType');
+const closeSaleModal = document.getElementById('closeSaleModal');
+
+saleButton.addEventListener('click', () => {
+  saleModal.style.display = 'flex';
+});
+
+confirmSaleType.addEventListener('click', () => {
+  // 입력받은 부동산 금액 (콤마 제거 후 숫자 변환)
+  const assetValue = parseInt(realEstateValue.value.replace(/,/g, '') || '0', 10);
+  if (isNaN(assetValue) || assetValue <= 0) {
+    alert('유효한 금액을 입력하세요.');
+    return;
+  }
   
-  saleButton.addEventListener('click', () => {
-    saleModal.style.display = 'flex';
-  });
+  let acquisitionTax = 0;
+  const selectedType = realEstateType.value; // 'house', 'land', 'building'
   
-  confirmSaleType.addEventListener('click', () => {
-    const saleType = document.getElementById('saleType').value;
-    const assetValue = parseInt(realEstateValue.value.replace(/,/g, '') || '0', 10);
-    if (isNaN(assetValue) || assetValue <= 0) {
-      alert('유효한 금액을 입력하세요.');
-      return;
+  if (selectedType === 'house') {
+    // 주택 계산
+    if (assetValue <= 600000000) {
+      // 6억원 이하: 1000분의 10 (1%)
+      acquisitionTax = Math.floor(assetValue * 0.01);
+    } else if (assetValue > 600000000 && assetValue <= 900000000) {
+      // 6억원 초과 ~ 9억원 이하: 6억원까지 1% + 초과분에 대해 7%
+      acquisitionTax = Math.floor(600000000 * 0.01 + (assetValue - 600000000) * 0.07);
+    } else {
+      // 9억원 초과: 1000분의 30 (3%)
+      acquisitionTax = Math.floor(assetValue * 0.03);
     }
-    // 매매 종류에 따라 세율 설정 (예시)
-    let taxRate = saleType === 'general' ? 0.02 : 0.025;
-    const acquisitionTax = Math.floor(assetValue * taxRate);
-    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
-    if (acquisitionTaxField) {
-      acquisitionTaxField.value = acquisitionTax;
+  } else if (selectedType === 'land') {
+    // 토지 계산: 토지 용도에 따라 (농지: 1000분의 30, 농지 이외: 1000분의 40)
+    const landType = document.getElementById('landType').value;
+    if (landType === 'farmland') {
+      acquisitionTax = Math.floor(assetValue * 0.03);
+    } else {
+      acquisitionTax = Math.floor(assetValue * 0.04);
     }
+  } else if (selectedType === 'building') {
+    // 건축물: 농지 이외 기준 (1000분의 40)
+    acquisitionTax = Math.floor(assetValue * 0.04);
+  }
+  
+  const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
+  if (acquisitionTaxField) {
+    acquisitionTaxField.value = acquisitionTax;
+  }
+  saleModal.style.display = 'none';
+});
+
+closeSaleModal.addEventListener('click', () => {
+  saleModal.style.display = 'none';
+});
+
+// 모달 외부 클릭 시 닫기 (매매 모달)
+window.addEventListener('click', (e) => {
+  if (e.target === saleModal) {
     saleModal.style.display = 'none';
-  });
-  
-  closeSaleModal.addEventListener('click', () => {
-    saleModal.style.display = 'none';
-  });
-  
-  // 모달 외부 클릭 시 닫기 (매매 모달)
-  window.addEventListener('click', (e) => {
-    if (e.target === saleModal) {
-      saleModal.style.display = 'none';
-    }
-  });
+  }
+});
   
 // === 증여 모달 관련 코드 ===
 const giftButton = document.getElementById('giftButton'); // 증여취득 버튼
@@ -179,10 +205,11 @@ confirmGiftType.addEventListener('click', () => {
     let taxRate = 0;
 
     // 증여 종류에 따른 세율 설정
+    // 자연인 취득: 1000분의 35 (3.5%), 비영리 사업자: 1000분의 28 (2.8%)
     if (giftType === 'general') {
-        taxRate = 0.035; // 일반 증여 세율
+        taxRate = 0.035;
     } else if (giftType === 'corporate') {
-        taxRate = 0.04; // 법인 증여 세율
+        taxRate = 0.028;
     }
 
     const acquisitionTax = Math.floor(assetValue * taxRate); // 취득세 계산
@@ -190,7 +217,7 @@ confirmGiftType.addEventListener('click', () => {
     // 계산된 취득세를 숨겨진 필드에 저장
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
     if (!acquisitionTaxField) {
-        console.error('숨겨진 필드 "calculatedAcquisitionTax"가 HTML에서 찾을 수 없습니다.');
+        console.error('숨겨진 필드 "calculatedAcquisitionTax"를 찾을 수 없습니다.');
         return;
     }
     acquisitionTaxField.value = acquisitionTax;
@@ -211,7 +238,7 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// === 상속 모달 관련 코드 ===
+// === 상속 모달 관련 코드 (업데이트된 상속 표준세 적용) ===
 const inheritanceButton = document.getElementById('inheritanceButton'); // 상속취득 버튼
 const inheritanceModal = document.getElementById('inheritanceModal');   // 상속취득 모달
 const confirmInheritanceType = document.getElementById('confirmInheritanceType'); // 확인 버튼
@@ -224,34 +251,34 @@ inheritanceButton.addEventListener('click', () => {
 
 // 상속취득 모달 확인 버튼 클릭 이벤트
 confirmInheritanceType.addEventListener('click', () => {
-    const inheritanceType = document.getElementById('inheritanceType').value; // 상속 종류
-    const isAdjustedArea = document.getElementById('isAdjustedAreaInheritance').value === 'yes'; // 조정 대상 여부
+    // 부동산 금액 입력 (콤마 제거 후 숫자 변환)
     const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-
     if (isNaN(assetValue) || assetValue <= 0) {
         alert('유효한 금액을 입력하세요.');
         return;
     }
-
+    
     let taxRate = 0;
-
-    // 상속 종류에 따른 세율 설정
-    if (inheritanceType === 'general') {
-        taxRate = isAdjustedArea ? 0.028 : 0.03; // 일반 상속: 조정 대상 여부에 따라 세율 변경
-    } else if (inheritanceType === 'corporate') {
-        taxRate = 0.04; // 법인 상속
+    // 부동산 종류 확인: 'house', 'land', 'building'
+    const selectedType = document.getElementById('realEstateType').value;
+    
+    if (selectedType === 'land') {
+        // 토지의 경우 토지 용도에 따라 농지이면 2.3%, 그 외는 2.8%
+        const landType = document.getElementById('landType').value;
+        taxRate = (landType === 'farmland') ? 0.023 : 0.028;
+    } else {
+        // 주택 및 건축물 등은 2.8%
+        taxRate = 0.028;
     }
-
-    const acquisitionTax = Math.floor(assetValue * taxRate); // 취득세 계산
-
-    // 계산된 취득세를 숨겨진 필드에 저장
+    
+    const acquisitionTax = Math.floor(assetValue * taxRate);
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
     if (!acquisitionTaxField) {
-        console.error('숨겨진 필드 "calculatedAcquisitionTax"가 HTML에서 찾을 수 없습니다.');
+        console.error('숨겨진 필드 "calculatedAcquisitionTax"를 찾을 수 없습니다.');
         return;
     }
     acquisitionTaxField.value = acquisitionTax;
-
+    
     // 모달 닫기
     inheritanceModal.style.display = 'none';
 });
@@ -268,15 +295,16 @@ window.addEventListener('click', (e) => {
     }
 });
 
-    // 원시취득 모달 관련 코드
+// 원시취득 모달 관련 코드
 const originalButton = document.getElementById('originalButton');   // 원시취득 버튼
 const originalModal = document.getElementById('originalModal');     // 원시취득 모달
 const originalCategory = document.getElementById('originalCategory'); // 건축물 대분류
+const confirmOriginalType = document.getElementById('confirmOriginalType'); // 확인 버튼
 
 originalButton.addEventListener('click', () => {
-    const selectedType = realEstateType.value;
+    const selectedType = document.getElementById('realEstateType').value;
 
-    // 원시취득은 건축물만 가능
+    // 원시취득은 건축물에만 해당됩니다.
     if (selectedType !== 'building') {
         alert('원시취득은 건축물에만 해당됩니다.');
         return;
@@ -289,6 +317,25 @@ originalButton.addEventListener('click', () => {
     `;
 
     originalModal.style.display = 'flex'; // 모달 표시
+});
+
+// 원시취득 모달 확인 버튼 클릭 이벤트 (표준세율: 2.8%)
+confirmOriginalType.addEventListener('click', () => {
+    const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
+    if (isNaN(assetValue) || assetValue <= 0) {
+        alert('유효한 금액을 입력하세요.');
+        return;
+    }
+    
+    // 원시취득 표준세율 적용 (2.8%)
+    const acquisitionTax = Math.floor(assetValue * 0.028);
+    
+    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
+    if (acquisitionTaxField) {
+        acquisitionTaxField.value = acquisitionTax;
+    }
+    
+    originalModal.style.display = 'none';
 });
 
 // 닫기 버튼 클릭 이벤트
