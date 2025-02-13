@@ -77,7 +77,26 @@
           </select>
         </div>
 
-        <!-- 건축물 선택 시 노출 -->
+        <!-- 추가 수정 1: 농지 외 토지 선택 시 과밀억제권역 여부 드롭다운 -->
+        <div id="landCrowdedAreaField" class="hidden">
+           <label for="landCrowdedArea">과밀억제권역 여부 (서울, 인천, 경기도 14개 시):</label>
+           <select id="landCrowdedArea">
+             <option value="yes">예</option>
+             <option value="no">아니오</option>
+           </select>
+          </div>
+  
+         <!-- 추가: 과밀억제권역이 '아니오'일 경우 대도시 권역 여부 드롭다운 -->
+         <div id="landMetropolitanAreaField" class="hidden">
+           <label for="landMetropolitanArea">대도시 권역 여부:</label>
+           <select id="landMetropolitanArea">
+             <option value="yes">예</option>
+             <option value="no">아니오</option>
+           </select>
+         </div>
+       </div>
+    
+      <!-- 건축물 선택 시 노출 -->
         <div id="buildingField" class="hidden">
           <label for="buildingType">건축물 용도:</label>
           <select id="buildingType">
@@ -94,19 +113,19 @@
             <option value="nonProfit">비영리법인</option>
           </select>
           
-          <!-- 과밀억제권역 여부 드롭다운 (영리법인 선택 시 나타남) -->
-          <div id="crowdedAreaField" class="hidden">
-            <label for="crowdedArea">과밀억제권역 여부 (서울, 인천, 경기도 14개 시):</label>
-            <select id="crowdedArea">
+          <!-- 추가 수정 2: 비주거용 건축물 선택 시 (영리, 비영리 모두 해당) -->
+          <div id="buildingCrowdedAreaField" class="hidden">
+            <label for="buildingCrowdedArea">과밀억제권역 여부 (서울, 인천, 경기도 14개 시):</label>
+            <select id="buildingCrowdedArea">
               <option value="yes">예</option>
               <option value="no">아니오</option>
             </select>
           </div>
-          
-          <!-- 대도시 여부 드롭다운 (과밀억제권역이 아니면 나타남) -->
-          <div id="metropolitanAreaField" class="hidden">
-            <label for="metropolitanArea">대도시 여부:</label>
-            <select id="metropolitanArea">
+  
+          <!-- 추가: 과밀억제권역이 '아니오'일 경우 대도시 권역 여부 드롭다운 -->
+          <div id="buildingMetropolitanAreaField" class="hidden">
+            <label for="buildingMetropolitanArea">대도시 권역 여부:</label>
+            <select id="buildingMetropolitanArea">
               <option value="yes">예</option>
               <option value="no">아니오</option>
             </select>
