@@ -178,7 +178,66 @@ confirmSaleType.addEventListener('click', () => {
       appliedTaxRate = "3%";
     }
   }
-  window.selectedAcquisitionMethod = "매매취득세";
+   } else if (acquisitionType === 'twoHouse') {
+    // 2주택자: 조정지역이면 1000분의 80(8%), 일반지역은 기존 방식 적용
+    const adjustedArea = document.getElementById('adjustedArea').value;
+    if (adjustedArea === 'yes') {
+      acquisitionTax = Math.floor(assetValue * 0.08);
+      appliedTaxRate = "8%";
+    } else {
+      // 일반지역: 기존 방식 적용 (houseType 기준)
+      if (houseType === 'highValue') {
+        acquisitionTax = Math.floor(assetValue * 0.03);
+        appliedTaxRate = "3%";
+      } else if (houseType === 'general6') {
+        acquisitionTax = Math.floor(assetValue * 0.01);
+        appliedTaxRate = "1%";
+      } else if (houseType === 'general9') {
+        if (assetValue <= 600000000) {
+          acquisitionTax = Math.floor(assetValue * 0.01);
+          appliedTaxRate = "1%";
+        } else if (assetValue <= 900000000) {
+          const effectiveRate = 0.01 + ((assetValue - 600000000) / 300000000) * (0.03 - 0.01);
+          acquisitionTax = Math.floor(assetValue * effectiveRate);
+          appliedTaxRate = `${(effectiveRate * 100).toFixed(2)}%`;
+        } else {
+          acquisitionTax = Math.floor(assetValue * 0.03);
+          appliedTaxRate = "3%";
+        }
+      } else {
+        if (assetValue <= 600000000) {
+          acquisitionTax = Math.floor(assetValue * 0.01);
+          appliedTaxRate = "1%";
+        } else if (assetValue <= 900000000) {
+          const effectiveRate = 0.01 + ((assetValue - 600000000) / 300000000) * (0.03 - 0.01);
+          acquisitionTax = Math.floor(assetValue * effectiveRate);
+          appliedTaxRate = `${(effectiveRate * 100).toFixed(2)}%`;
+        } else {
+          acquisitionTax = Math.floor(assetValue * 0.03);
+          appliedTaxRate = "3%";
+        }
+      }
+    }
+  } else if (acquisitionType === 'threeHouse') {
+    // 3주택자: 조정지역이면 1000분의 120(12%), 일반지역이면 1000분의 80(8%)
+    const adjustedArea = document.getElementById('adjustedArea').value;
+    if (adjustedArea === 'yes') {
+      acquisitionTax = Math.floor(assetValue * 0.12);
+      appliedTaxRate = "12%";
+    } else {
+      acquisitionTax = Math.floor(assetValue * 0.08);
+      appliedTaxRate = "8%";
+    }
+  } else if (acquisitionType === 'fourHouse') {
+    // 4주택자: 조정지역, 일반지역 상관없이 1000분의 120 (12%)
+    acquisitionTax = Math.floor(assetValue * 0.12);
+    appliedTaxRate = "12%";
+  } else if (acquisitionType === 'nonProfitCorporate' || acquisitionType === 'forProfitCorporate') {
+    // 법인(영리, 비영리 모두): 1000분의 120 (12%)
+    acquisitionTax = Math.floor(assetValue * 0.12);
+    appliedTaxRate = "12%";
+  }
+  window.selectedAcquisitionMethod = "매매취득세"; 
   } else if (selectedType === 'land') {
     // 토지 계산: 토지 용도에 따라 (농지: 3%, 농지 외 토지: 4%)
     const landType = document.getElementById('landType').value;
