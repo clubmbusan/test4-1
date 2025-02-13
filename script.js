@@ -510,4 +510,5 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     <p>가산세 (연체): ${penaltyTax.toLocaleString()} 원</p>
     <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
   `;
+ });
 });
