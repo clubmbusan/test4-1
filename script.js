@@ -137,7 +137,7 @@ confirmSaleType.addEventListener('click', () => {
   
   let acquisitionTax = 0;
   let appliedTaxRate = "";
-  const selectedType = realEstateType.value; // 'house', 'land', 'building'
+  const selectedType = document.getElementById('realEstateType').value; // 'house', 'land', 'building'
   
   if (selectedType === 'house') {
     // 주택 계산 - houseType을 통해 세율 구분 ("general6", "general9", "highValue")
@@ -177,12 +177,16 @@ confirmSaleType.addEventListener('click', () => {
     }
     window.selectedAcquisitionMethod = "매매취득세";
   } else if (selectedType === 'land') {
-    // 토지 계산: 토지 용도에 따라 (농지: 3%, 농지 이외: 4%)
+    // 토지 계산: 토지 용도에 따라 (농지: 3%, 농지 외 토지: 4%)
     const landType = document.getElementById('landType').value;
     if (landType === 'farmland') {
       acquisitionTax = Math.floor(assetValue * 0.03);
       appliedTaxRate = "3%";
+    } else if (landType === 'nonFarmland') {
+      acquisitionTax = Math.floor(assetValue * 0.04);
+      appliedTaxRate = "4%";
     } else {
+      // 예외 처리: 값이 없으면 기본적으로 4% 적용
       acquisitionTax = Math.floor(assetValue * 0.04);
       appliedTaxRate = "4%";
     }
@@ -207,14 +211,6 @@ confirmSaleType.addEventListener('click', () => {
 closeSaleModal.addEventListener('click', () => {
   saleModal.style.display = 'none';
 });
-
-// 모달 외부 클릭 시 닫기 (매매 모달)
-window.addEventListener('click', (e) => {
-  if (e.target === saleModal) {
-    saleModal.style.display = 'none';
-  }
-});
-
 
 // 모달 외부 클릭 시 닫기 (매매 모달)
 window.addEventListener('click', (e) => {
