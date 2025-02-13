@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const vehicleField = document.getElementById('vehicleField');
   const otherField = document.getElementById('otherField');
 
-  // [2] 재산 유형 변경 시, 해당 필드만 보이도록
   assetType.addEventListener('change', () => {
     const selected = assetType.value;
     if (selected === 'realEstate') {
@@ -22,10 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
       otherField.style.display = 'block';
     }
   });
-  // 초기 상태 반영
   assetType.dispatchEvent(new Event('change'));
 
-  // [3] 부동산 종류에 따른 하위 필드 표시/숨김
+  // [2] 부동산 종류에 따른 하위 필드 표시/숨김
   const realEstateType = document.getElementById('realEstateType');
   const houseField = document.getElementById('houseField');       // 주택 관련 영역
   const landField = document.getElementById('landField');         // 토지 관련 영역
@@ -52,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 초기 상태 반영
   realEstateType.dispatchEvent(new Event('change'));
 
-  // [4] 추가 수정 1: 토지 영역 - 농지 외 토지 선택 시 추가 드롭다운 처리
+  // [3] 추가 수정 1: 토지 영역 - 농지 외 토지 선택 시 추가 드롭다운 처리
   // 취득 유형이 자연인이 아닌 경우에만 드롭다운이 표시되어야 함
   const landType = document.getElementById('landType');
   const landAcquisitionType = document.getElementById('landAcquisitionType');
@@ -74,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   landCrowdedArea.addEventListener('change', () => {
     if (landCrowdedArea.value === 'no') {
-      // 과밀억제권역이 '아니오'이면 대도시 권역 여부 드롭다운 표시
       landMetropolitanAreaField.style.display = 'block';
     } else {
       landMetropolitanAreaField.style.display = 'none';
@@ -84,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateLandDropdowns();
   landCrowdedArea.dispatchEvent(new Event('change'));
 
-  // [5] 추가 수정 2: 건축물 영역 - 비주거용 건축물 선택 시 추가 드롭다운 처리
+  // [4] 추가 수정 2: 건축물 영역 - 비주거용 건축물 선택 시 추가 드롭다운 처리
   // 취득 유형이 자연인이 아닌 경우에만 표시
   const buildingType = document.getElementById('buildingType');
   const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
@@ -115,14 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
   updateBuildingDropdowns();
   buildingCrowdedArea.dispatchEvent(new Event('change'));
 
-  // [6] 부동산 금액 입력 시 콤마 자동 적용
+  // [5] 부동산 금액 입력 시 콤마 자동 적용
   const realEstateValue = document.getElementById('realEstateValue');
   realEstateValue.addEventListener('input', () => {
     const raw = realEstateValue.value.replace(/,/g, '').replace(/[^0-9]/g, '');
     realEstateValue.value = raw ? parseInt(raw, 10).toLocaleString() : '';
   });
 
-  // [7] 차량 금액 자동 적용
+  // [6] 차량 금액 자동 적용
   const vehiclePrice = document.getElementById('vehiclePrice');
   if (vehiclePrice) {
     vehiclePrice.addEventListener('input', () => {
@@ -131,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // [8] 기타 자산 금액 자동 적용
+  // [7] 기타 자산 금액 자동 적용
   const otherAssetValue = document.getElementById('otherAssetValue');
   if (otherAssetValue) {
     otherAssetValue.addEventListener('input', () => {
