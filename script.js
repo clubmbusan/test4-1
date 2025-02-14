@@ -111,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
   landType.dispatchEvent(new Event('change'));
   landAcquisitionType.dispatchEvent(new Event('change'));
   landCrowdedArea.dispatchEvent(new Event('change'));
-});
 
   // [3] 건축물 영역에서 추가 드롭다운 처리
   // - 건축물 영역 내 취득 유형 드롭다운에서 영리법인 선택 시 과밀억제권역 여부 드롭다운 표시
