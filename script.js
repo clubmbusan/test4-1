@@ -101,7 +101,6 @@ document.getElementById('landMetropolitanArea').addEventListener('change', updat
 
 // 초기 상태 반영 for 토지
 updateLandDropdowns();
-});  
 
 // 건축물 영역 드롭다운 업데이트 (대도시권역 3가지 옵션 적용)
 const buildingType = document.getElementById('buildingType');
