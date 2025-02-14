@@ -50,70 +50,64 @@ document.addEventListener('DOMContentLoaded', () => {
   // 초기 상태 반영
   realEstateType.dispatchEvent(new Event('change'));
 
-// [3] 추가 수정 1: 토지 영역 - 농지 외 토지 선택 시 추가 드롭다운 처리
-// 취득 유형이 자연인이 아닌 경우에만 드롭다운이 표시되어야 함
-const landType = document.getElementById('landType');
-const landAcquisitionType = document.getElementById('landAcquisitionType');
-const landCrowdedAreaField = document.getElementById('landCrowdedAreaField');
-const landCrowdedArea = document.getElementById('landCrowdedArea');
-const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField');
+  // ===== 토지 영역 드롭다운 (농지 외 토지)=====
+  const landType = document.getElementById('landType');
+  const landAcquisitionType = document.getElementById('landAcquisitionType');
+  const landCrowdedAreaField = document.getElementById('landCrowdedAreaField');
+  const landCrowdedArea = document.getElementById('landCrowdedArea');
+  const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField');
 
-function updateLandDropdowns() {
-  // 농지 외 토지이고 취득 유형이 자연인이 아닐 때만 표시
-  if (landType.value === 'nonFarmland' && landAcquisitionType.value !== 'natural') {
-    landCrowdedAreaField.style.display = 'block';
-  } else {
-    landCrowdedAreaField.style.display = 'none';
-    landMetropolitanAreaField.style.display = 'none';
+  function updateLandDropdowns() {
+    // 만약 취득 유형이 natural이거나 토지 유형이 'nonFarmland'가 아니라면 드롭다운 모두 숨김
+    if (landAcquisitionType.value === 'natural' || landType.value !== 'nonFarmland') {
+      landCrowdedAreaField.style.display = 'none';
+      landMetropolitanAreaField.style.display = 'none';
+    } else {
+      // 농지 외 토지이고 취득 유형이 자연인이 아닐 경우, 과밀억제권역 드롭다운 표시
+      landCrowdedAreaField.style.display = 'block';
+      // 과밀억제권역의 값이 'yes'일 때만 대도시권역 드롭다운 표시
+      if (landCrowdedArea.value === 'yes') {
+        landMetropolitanAreaField.style.display = 'block';
+      } else {
+        landMetropolitanAreaField.style.display = 'none';
+      }
+    }
   }
-}
-landType.addEventListener('change', updateLandDropdowns);
-landAcquisitionType.addEventListener('change', updateLandDropdowns);
+  landType.addEventListener('change', updateLandDropdowns);
+  landAcquisitionType.addEventListener('change', updateLandDropdowns);
+  landCrowdedArea.addEventListener('change', updateLandDropdowns);
+  // 초기 상태 반영 for 토지
+  updateLandDropdowns();
 
-// 수정: 과밀억제권역이 '예'인 경우에 대도시권 여부 드롭다운 표시
-landCrowdedArea.addEventListener('change', () => {
-  if (landCrowdedArea.value === 'yes') {
-    landMetropolitanAreaField.style.display = 'block';
-  } else {
-    landMetropolitanAreaField.style.display = 'none';
+  // ===== 건축물 영역 드롭다운 (비주거용 건축물)=====
+  const buildingType = document.getElementById('buildingType');
+  const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
+  const buildingCrowdedAreaField = document.getElementById('buildingCrowdedAreaField');
+  const buildingCrowdedArea = document.getElementById('buildingCrowdedArea');
+  const buildingMetropolitanAreaField = document.getElementById('buildingMetropolitanAreaField');
+
+  function updateBuildingDropdowns() {
+    // 만약 취득 유형이 natural이거나 건축시설물 유형이 'commercialBuilding'이 아니라면 드롭다운 모두 숨김
+    if (buildingAcquisitionType.value === 'natural' || buildingType.value !== 'commercialBuilding') {
+      buildingCrowdedAreaField.style.display = 'none';
+      buildingMetropolitanAreaField.style.display = 'none';
+    } else {
+      // 취득 유형이 자연인이 아닌 경우, 비주거용 건축물이면 과밀억제권역 드롭다운 표시
+      buildingCrowdedAreaField.style.display = 'block';
+      // 과밀억제권역의 값이 'yes'일 때만 대도시권역 드롭다운 표시
+      if (buildingCrowdedArea.value === 'yes') {
+        buildingMetropolitanAreaField.style.display = 'block';
+      } else {
+        buildingMetropolitanAreaField.style.display = 'none';
+      }
+    }
   }
+  buildingType.addEventListener('change', updateBuildingDropdowns);
+  buildingAcquisitionType.addEventListener('change', updateBuildingDropdowns);
+  buildingCrowdedArea.addEventListener('change', updateBuildingDropdowns);
+  // 초기 상태 반영 for 건축물
+  updateBuildingDropdowns();
 });
-// 초기 상태 반영 for 토지
-updateLandDropdowns();
-landCrowdedArea.dispatchEvent(new Event('change'));
-
-  // [4] 추가 수정 2: 건축물 영역 - 비주거용 건축물 선택 시 추가 드롭다운 처리
-// 취득 유형이 자연인이 아닌 경우에만 표시
-const buildingType = document.getElementById('buildingType');
-const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
-const buildingCrowdedAreaField = document.getElementById('buildingCrowdedAreaField');
-const buildingCrowdedArea = document.getElementById('buildingCrowdedArea');
-const buildingMetropolitanAreaField = document.getElementById('buildingMetropolitanAreaField');
-
-function updateBuildingDropdowns() {
-  // 비주거용 건축물 선택 시, 그리고 취득 유형이 자연인이 아닐 때만 표시
-  if (buildingType.value === 'commercialBuilding' && buildingAcquisitionType.value !== 'natural') {
-    buildingCrowdedAreaField.style.display = 'block';
-  } else {
-    buildingCrowdedAreaField.style.display = 'none';
-    buildingMetropolitanAreaField.style.display = 'none';
-  }
-}
-buildingType.addEventListener('change', updateBuildingDropdowns);
-buildingAcquisitionType.addEventListener('change', updateBuildingDropdowns);
-
-buildingCrowdedArea.addEventListener('change', () => {
-  // 수정된 조건: 과밀억제권역이 '예'인 경우에 대도시권 여부 드롭다운 표시
-  if (buildingCrowdedArea.value === 'yes') {
-    buildingMetropolitanAreaField.style.display = 'block';
-  } else {
-    buildingMetropolitanAreaField.style.display = 'none';
-  }
-});
-
-// 초기 상태 반영 for 건축물
-updateBuildingDropdowns();
-buildingCrowdedArea.dispatchEvent(new Event('change'));
 
   // [5] 부동산 금액 입력 시 콤마 자동 적용
   const realEstateValue = document.getElementById('realEstateValue');
