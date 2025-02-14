@@ -114,54 +114,58 @@ document.addEventListener('DOMContentLoaded', () => {
   landCrowdedArea.dispatchEvent(new Event('change'));
 
  // ====================================================
-  // [B] 건축물 부분 - 비거주용건축물 + 법인 선택 시 추가 드롭다운 표시
-  // ====================================================
-  const buildingType = document.getElementById('buildingType'); // 건축물 용도 선택
-  const buildingAcquisitionType = document.getElementById('buildingAcquisitionType'); // 취득 유형 (자연인, 영리법인, 비영리법인)
-  const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드 (건축물)
-  const crowdedArea = document.getElementById('crowdedArea');           // 과밀억제권역 여부 드롭다운 (건축물)
-  const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드 (건축물)
-  const metropolitanArea = document.getElementById('metropolitanArea');           // 대도시권역 여부 드롭다운 (건축물)
+// [B] 건축물 부분 - 비거주용건축물 선택 시, 법인일 때만 추가 드롭다운 표시
+// ====================================================
+const buildingType = document.getElementById('buildingType'); // 건축물 용도 선택
+const buildingAcquisitionType = document.getElementById('buildingAcquisitionType'); // 취득 유형 (자연인, 영리법인, 비영리법인)
+const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드 (건축물)
+const crowdedArea = document.getElementById('crowdedArea');           // 과밀억제권역 여부 드롭다운 (건축물)
+const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드 (건축물)
+const metropolitanArea = document.getElementById('metropolitanArea');           // 대도시권역 여부 드롭다운 (건축물)
 
-  function checkBuildingOptions() {
-    // 기본적으로 숨김
-    crowdedAreaField.style.display = 'none';
-    metropolitanAreaField.style.display = 'none';
+function checkBuildingOptions() {
+  // 기본적으로 숨김 처리
+  crowdedAreaField.style.display = 'none';
+  metropolitanAreaField.style.display = 'none';
 
-    // 건축물 용도가 "비거주용건축물" (value: 'commercialBuilding')이고,
-    // 취득 유형이 영리법인 또는 비영리법인인 경우에만 과밀억제권역 드롭다운 표시
-    if (
-      buildingType.value === 'commercialBuilding' &&
-      (buildingAcquisitionType.value === 'forProfit' || buildingAcquisitionType.value === 'nonProfit')
-    ) {
-      crowdedAreaField.style.display = 'block';
-    }
+  // 만약 취득 유형이 자연인이면 추가 드롭다운을 표시하지 않음
+  if (buildingAcquisitionType.value === 'natural') {
+    return;
   }
-  buildingType.addEventListener('change', checkBuildingOptions);
-  buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
+  
+  // 건축물 용도가 "비거주용건축물"일 때만 추가 드롭다운 표시
+  if (buildingType.value === 'commercialBuilding') {
+    crowdedAreaField.style.display = 'block';
+  }
+}
 
-  crowdedArea.addEventListener('change', () => {
-    if (crowdedArea.value === 'yes') {
-      metropolitanAreaField.style.display = 'block';
-    } else {
-      metropolitanAreaField.style.display = 'none';
-    }
-  });
-  metropolitanArea.addEventListener('change', () => {
-    if (metropolitanArea.value === 'notSubject') {
-      alert(
-        "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
-        "법인이 과밀억제권역 내에서 설립된 지 5년 미만\n" +
-        "과밀억제권역 내에서 부동산 취득\n" +
-        "중과세에서 제외되는 업종(신축업, 임대업)이 아닌 경우\n" +
-        "위의 열거한 내용 중 하나라도 충족되지 아니하는 경우입니다."
-      );
-    }
-  });
-  // 초기 상태 반영
-  buildingType.dispatchEvent(new Event('change'));
-  buildingAcquisitionType.dispatchEvent(new Event('change'));
-  crowdedArea.dispatchEvent(new Event('change'));
+buildingType.addEventListener('change', checkBuildingOptions);
+buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
+
+crowdedArea.addEventListener('change', () => {
+  if (crowdedArea.value === 'yes') {
+    metropolitanAreaField.style.display = 'block';
+  } else {
+    metropolitanAreaField.style.display = 'none';
+  }
+});
+
+metropolitanArea.addEventListener('change', () => {
+  if (metropolitanArea.value === 'notSubject') {
+    alert(
+      "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
+      "법인이 과밀억제권역 내에서 설립된 지 5년 미만\n" +
+      "과밀억제권역 내에서 부동산 취득\n" +
+      "중과세에서 제외되는 업종(신축업, 임대업)이 아닌 경우\n" +
+      "위의 열거한 내용 중 하나라도 충족되지 아니하는 경우입니다."
+    );
+  }
+});
+
+// 초기 상태 반영
+buildingType.dispatchEvent(new Event('change'));
+buildingAcquisitionType.dispatchEvent(new Event('change'));
+crowdedArea.dispatchEvent(new Event('change'));
 
   // [3] 부동산 금액 입력 시 콤마 자동
   const realEstateValue = document.getElementById('realEstateValue');
