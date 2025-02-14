@@ -53,8 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 초기 상태 반영
   realEstateType.dispatchEvent(new Event('change'));
 
-  // === 토지 부분 수정 ===
-  // 추가로 필요한 요소들 (HTML에서 미리 추가되어 있어야 함)
+  // =========================
+  // [A] 토지 부분(이전 수정 내용)
+  // ========================= 
   const landType = document.getElementById('landType'); // 농지 / 농지외토지 선택
   const landAcquisitionType = document.getElementById('landAcquisitionType'); // 자연인, 영리법인, 비영리법인 선택
   const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 필드
@@ -112,51 +113,72 @@ document.addEventListener('DOMContentLoaded', () => {
   landAcquisitionType.dispatchEvent(new Event('change'));
   landCrowdedArea.dispatchEvent(new Event('change'));
 
-  // [3] 건축물 영역에서 추가 드롭다운 처리
-  // - 건축물 영역 내 취득 유형 드롭다운에서 영리법인 선택 시 과밀억제권역 여부 드롭다운 표시
-  // - 과밀억제권역 여부 드롭다운에서 "아니오" 선택 시 대도시 여부 드롭다운 표시
-  const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
-  const crowdedAreaField = document.getElementById('crowdedAreaField');
-  const crowdedArea = document.getElementById('crowdedArea');
-  const metropolitanAreaField = document.getElementById('metropolitanAreaField');
+ // ====================================================
+  // [B] 건축물 부분 - 비거주용건축물 + 법인 선택 시 추가 드롭다운 표시
+  // ====================================================
+  const buildingType = document.getElementById('buildingType'); // 건축물 용도 선택
+  const buildingAcquisitionType = document.getElementById('buildingAcquisitionType'); // 취득 유형 (자연인, 영리법인, 비영리법인)
+  const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드 (건축물)
+  const crowdedArea = document.getElementById('crowdedArea');           // 과밀억제권역 여부 드롭다운 (건축물)
+  const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드 (건축물)
+  const metropolitanArea = document.getElementById('metropolitanArea');           // 대도시권역 여부 드롭다운 (건축물)
 
-  buildingAcquisitionType.addEventListener('change', () => {
-    if (buildingAcquisitionType.value === 'forProfit') {
+  function checkBuildingOptions() {
+    // 기본적으로 숨김
+    crowdedAreaField.style.display = 'none';
+    metropolitanAreaField.style.display = 'none';
+
+    // 건축물 용도가 "비거주용건축물" (value: 'commercialBuilding')이고,
+    // 취득 유형이 영리법인 또는 비영리법인인 경우에만 과밀억제권역 드롭다운 표시
+    if (
+      buildingType.value === 'commercialBuilding' &&
+      (buildingAcquisitionType.value === 'forProfit' || buildingAcquisitionType.value === 'nonProfit')
+    ) {
       crowdedAreaField.style.display = 'block';
-    } else {
-      crowdedAreaField.style.display = 'none';
-      metropolitanAreaField.style.display = 'none';
     }
-  });
-  // 초기 상태 반영
-  buildingAcquisitionType.dispatchEvent(new Event('change'));
+  }
+  buildingType.addEventListener('change', checkBuildingOptions);
+  buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
 
-  // 과밀억제권역 드롭다운 변경 이벤트: "아니오" 선택 시 대도시 여부 드롭다운 표시
   crowdedArea.addEventListener('change', () => {
-    if (crowdedArea.value === 'no') {
+    if (crowdedArea.value === 'yes') {
       metropolitanAreaField.style.display = 'block';
     } else {
       metropolitanAreaField.style.display = 'none';
     }
   });
+  metropolitanArea.addEventListener('change', () => {
+    if (metropolitanArea.value === 'notSubject') {
+      alert(
+        "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
+        "법인이 과밀억제권역 내에서 설립된 지 5년 미만\n" +
+        "과밀억제권역 내에서 부동산 취득\n" +
+        "중과세에서 제외되는 업종(신축업, 임대업)이 아닌 경우\n" +
+        "위의 열거한 내용 중 하나라도 충족되지 아니하는 경우입니다."
+      );
+    }
+  });
   // 초기 상태 반영
+  buildingType.dispatchEvent(new Event('change'));
+  buildingAcquisitionType.dispatchEvent(new Event('change'));
   crowdedArea.dispatchEvent(new Event('change'));
+});
 
-  // [4] 부동산 금액 입력 시 콤마 자동
+  // [3] 부동산 금액 입력 시 콤마 자동
   const realEstateValue = document.getElementById('realEstateValue');
   realEstateValue.addEventListener('input', () => {
     const raw = realEstateValue.value.replace(/,/g, '').replace(/[^0-9]/g, '');
     realEstateValue.value = raw ? parseInt(raw, 10).toLocaleString() : '';
   });
 
-  // [5] 차량 금액도 콤마 자동 적용
+  // [4] 차량 금액도 콤마 자동 적용
   const vehiclePrice = document.getElementById('vehiclePrice');
   vehiclePrice.addEventListener('input', () => {
     const raw = vehiclePrice.value.replace(/,/g, '').replace(/[^0-9]/g, '');
     vehiclePrice.value = raw ? parseInt(raw, 10).toLocaleString() : '';
   });
 
-  // [6] 기타 자산 금액도 동일하게 적용
+  // [5] 기타 자산 금액도 동일하게 적용
   const otherAssetValue = document.getElementById('otherAssetValue');
   otherAssetValue.addEventListener('input', () => {
     const raw = otherAssetValue.value.replace(/,/g, '').replace(/[^0-9]/g, '');
