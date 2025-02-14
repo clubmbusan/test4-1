@@ -23,32 +23,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   assetType.dispatchEvent(new Event('change'));
 
-  // [2] 부동산 종류에 따른 하위 필드 표시/숨김
-  const realEstateType = document.getElementById('realEstateType');
-  const houseField = document.getElementById('houseField');       // 주택 관련 영역
-  const landField = document.getElementById('landField');         // 토지 관련 영역
-  const buildingField = document.getElementById('buildingField');   // 건축물 관련 영역
+ // [2] 부동산 종류에 따른 하위 필드 표시/숨김 (수정된 버전)
+const realEstateType = document.getElementById('realEstateType');
+const houseField = document.getElementById('houseField');       // 주택 관련 영역
+const landField = document.getElementById('landField');         // 토지 관련 영역
+const buildingField = document.getElementById('buildingField');   // 건축물 관련 영역
 
-  function hideAllSubFields() {
-    houseField.style.display = 'none';
-    landField.style.display = 'none';
-    buildingField.style.display = 'none';
+function hideAllSubFields() {
+  houseField.style.display = 'none';
+  landField.style.display = 'none';
+  buildingField.style.display = 'none';
+  
+  // 숨김 클래스를 다시 추가하여 초기 상태로 만듭니다.
+  houseField.classList.add('hidden');
+  landField.classList.add('hidden');
+  buildingField.classList.add('hidden');
+}
+
+realEstateType.addEventListener('change', () => {
+  hideAllSubFields();
+  const selectedType = realEstateType.value;
+  if (selectedType === 'house') {
+    houseField.style.display = 'block';
+    houseField.classList.remove('hidden');
+  } else if (selectedType === 'land') {
+    landField.style.display = 'block';
+    landField.classList.remove('hidden');
+  } else if (selectedType === 'building') {
+    buildingField.style.display = 'block';
+    buildingField.classList.remove('hidden');
   }
+});
 
-  realEstateType.addEventListener('change', () => {
-    hideAllSubFields();
-    const selectedType = realEstateType.value;
-    if (selectedType === 'house') {
-      // 주택이 선택되면 조정지역 여부, 주택 종류, 취득 유형 드롭다운이 동시에 표시됨
-      houseField.style.display = 'block';
-    } else if (selectedType === 'land') {
-      landField.style.display = 'block';
-    } else if (selectedType === 'building') {
-      buildingField.style.display = 'block';
-    }
-  });
-  // 초기 상태 반영
-  realEstateType.dispatchEvent(new Event('change'));
+// 초기 상태 반영
+realEstateType.dispatchEvent(new Event('change'));
 
  // ===== 토지 영역 드롭다운 (농지 외 토지) =====
 const landType = document.getElementById('landType');
