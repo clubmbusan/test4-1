@@ -162,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
   buildingType.dispatchEvent(new Event('change'));
   buildingAcquisitionType.dispatchEvent(new Event('change'));
   crowdedArea.dispatchEvent(new Event('change'));
-});
 
   // [3] 부동산 금액 입력 시 콤마 자동
   const realEstateValue = document.getElementById('realEstateValue');
