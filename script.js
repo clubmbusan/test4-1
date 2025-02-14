@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ====================================================
 // [B] 건축물 부분 - 비거주용건축물 선택 시, 법인일 때만 추가 드롭다운 표시
 // ====================================================
-document.addEventListener('DOMContentLoaded', () => {
   const buildingType = document.getElementById('buildingType'); // 건축물 용도 선택
   const buildingAcquisitionType = document.getElementById('buildingAcquisitionType'); // 취득 유형 (자연인, 영리법인, 비영리법인)
   const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드
