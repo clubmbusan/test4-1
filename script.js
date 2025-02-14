@@ -151,7 +151,6 @@ buildingMetropolitanArea.addEventListener('change', updateBuildingDropdowns);
   
 // 초기 상태 반영 for 건축물
 updateBuildingDropdowns();
-});
 
   // [5] 부동산 금액 입력 시 콤마 자동 적용
   const realEstateValue = document.getElementById('realEstateValue');
