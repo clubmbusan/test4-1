@@ -23,38 +23,31 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   assetType.dispatchEvent(new Event('change'));
 
- // [2] 부동산 종류에 따른 하위 필드 표시/숨김 (수정된 버전)
+// [2] 부동산 종류에 따른 하위 필드 표시/숨김 (수정된 버전)
 const realEstateType = document.getElementById('realEstateType');
 const houseField = document.getElementById('houseField');       // 주택 관련 영역
 const landField = document.getElementById('landField');         // 토지 관련 영역
 const buildingField = document.getElementById('buildingField');   // 건축물 관련 영역
 
-function hideAllSubFields() {
-  houseField.style.display = 'none';
-  landField.style.display = 'none';
-  buildingField.style.display = 'none';
+function updateSubFields() {
+  // 우선 모든 하위 필드에서 .hidden 클래스를 제거하고 display를 none으로 설정
+  [houseField, landField, buildingField].forEach(field => {
+    field.classList.remove('hidden');
+    field.style.display = 'none';
+  });
   
-  // 숨김 클래스를 다시 추가하여 초기 상태로 만듭니다.
-  houseField.classList.add('hidden');
-  landField.classList.add('hidden');
-  buildingField.classList.add('hidden');
-}
-
-realEstateType.addEventListener('change', () => {
-  hideAllSubFields();
+  // 선택한 부동산 종류에 따라 해당 필드를 보이게 함
   const selectedType = realEstateType.value;
   if (selectedType === 'house') {
     houseField.style.display = 'block';
-    houseField.classList.remove('hidden');
   } else if (selectedType === 'land') {
     landField.style.display = 'block';
-    landField.classList.remove('hidden');
   } else if (selectedType === 'building') {
     buildingField.style.display = 'block';
-    buildingField.classList.remove('hidden');
   }
-});
+}
 
+realEstateType.addEventListener('change', updateSubFields);
 // 초기 상태 반영
 realEstateType.dispatchEvent(new Event('change'));
 
