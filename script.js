@@ -1,577 +1,393 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // [1] 재산 유형에 따른 필드 표시
-  const assetType = document.getElementById('assetType');
-  const realEstateField = document.getElementById('realEstateField');
-  const vehicleField = document.getElementById('vehicleField');
-  const otherField = document.getElementById('otherField');
+    // DOM 요소 가져오기
+    const propertyTypeSelect = document.getElementById('propertyType'); // 부동산 유형 선택
+    const regulatedAreaSelect = document.getElementById('regulatedArea'); // 조정대상지역 여부 select
+    const singleHouseExemptionSelect = document.getElementById('singleHouseExemption'); // 1세대 1주택 여부 select
+    const regulatedAreaField = document.getElementById('regulatedAreaField'); // 조정대상지역 여부 필드
+    const singleHouseExemptionField = document.getElementById('singleHouseExemptionField'); // 1세대 1주택 여부 필드
+    const acquisitionDateInput = document.getElementById('acquisitionDate'); // 취득일 입력
+    const transferDateInput = document.getElementById('transferDate'); // 양도일 입력
+    const holdingYearsDisplay = document.getElementById('holdingYearsDisplay'); // 보유 기간 표시
+    const calculateButton = document.getElementById('calculateButton'); // 계산 버튼
+    const toggleAcquisitionButton = document.getElementById('toggleAcquisitionButton'); // 취득가액 버튼
+    const acquisitionModal = document.getElementById('acquisitionModal'); // 취득가액 모달
+    const closeAcquisitionModal = document.getElementById('closeAcquisitionModal'); // 취득가액 모달 닫기 버튼
+    const saveAcquisitionButton = document.getElementById('saveAcquisition'); // 취득가액 저장 버튼
+    const totalAcquisitionDisplay = document.getElementById('totalAcquisitionDisplay'); // 취득가액 표시
+    const toggleExpensesButton = document.getElementById('toggleExpensesButton'); // 필요경비 버튼
+    const expensesModal = document.getElementById('expensesModal'); // 필요경비 모달
+    const closeExpensesModal = document.getElementById('closeExpensesModal'); // 필요경비 모달 닫기 버튼
+    const saveExpensesButton = document.getElementById('saveExpenses'); // 필요경비 저장 버튼
+    const totalExpensesDisplay = document.getElementById('totalExpensesDisplay'); // 필요경비 표시
+    const exemptionSection = document.getElementById("exemptionSection"); // 감면율 선택 필드 추가
 
-  assetType.addEventListener('change', () => {
-    const selected = assetType.value;
-    if (selected === 'realEstate') {
-      realEstateField.style.display = 'block';
-      vehicleField.style.display = 'none';
-      otherField.style.display = 'none';
-    } else if (selected === 'vehicle') {
-      realEstateField.style.display = 'none';
-      vehicleField.style.display = 'block';
-      otherField.style.display = 'none';
-    } else {
-      realEstateField.style.display = 'none';
-      vehicleField.style.display = 'none';
-      otherField.style.display = 'block';
+    // [수정된 부분] 조정대상지역 값에 따라 singleHouseExemption 옵션 업데이트
+    const updateSingleHouseExemptionOptions = () => {
+        let optionsHtml = '';
+        if (regulatedAreaSelect.value === 'yes') {
+            // 조정대상지역이 "예"인 경우
+            optionsHtml += `<option value="yes">예 (3년 보유, 2년 거주)</option>`;
+            optionsHtml += `<option value="no">아니오</option>`;
+        } else {
+            // 조정대상지역이 "아니오"인 경우: "아니오"가 기본 선택됨
+            optionsHtml += `<option value="yes">예 (3년 보유)</option>`;
+            optionsHtml += `<option value="no" selected>아니오</option>`;
+        }
+        singleHouseExemptionSelect.innerHTML = optionsHtml;
+    };
+
+    // 초기 옵션 업데이트
+    updateSingleHouseExemptionOptions();
+
+    // regulatedArea 선택이 변경될 때마다 옵션 업데이트
+    regulatedAreaSelect.addEventListener('change', updateSingleHouseExemptionOptions);
+
+    // 방어 코드 추가: 모든 요소가 null인지 확인
+    if (!propertyTypeSelect || !regulatedAreaField || !singleHouseExemptionField || !acquisitionDateInput || !transferDateInput || !calculateButton) {
+        console.error('필수 요소가 HTML에 누락되었습니다. HTML 구조를 점검하세요.');
+        return;
     }
-  });
-  assetType.dispatchEvent(new Event('change'));
 
-// [2] 부동산 종류에 따른 하위 필드 표시/숨김 (수정된 버전)
-const realEstateType = document.getElementById('realEstateType');
-const houseField = document.getElementById('houseField');       // 주택 관련 영역
-const landField = document.getElementById('landField');         // 토지 관련 영역
-const buildingField = document.getElementById('buildingField');   // 건축물 관련 영역
+    // 숫자 입력 필드에 콤마 추가 이벤트
+    document.addEventListener('input', (event) => {
+        const target = event.target;
 
-function updateSubFields() {
-  // 우선 모든 하위 필드에서 .hidden 클래스를 제거하고 display를 none으로 설정
-  [houseField, landField, buildingField].forEach(field => {
-    field.classList.remove('hidden');
-    field.style.display = 'none';
-  });
-  
-  // 선택한 부동산 종류에 따라 해당 필드를 보이게 함
-  const selectedType = realEstateType.value;
-  if (selectedType === 'house') {
-    houseField.style.display = 'block';
-  } else if (selectedType === 'land') {
-    landField.style.display = 'block';
-  } else if (selectedType === 'building') {
-    buildingField.style.display = 'block';
-  }
-}
+        // 콤마를 적용할 모든 필드 ID 정의
+        const numericFields = [
+            'acquisitionPrice', 
+            'acquisitionBrokerageFee', 
+            'acquisitionLegalFee', 
+            'acquisitionOtherExpenses',
+            'transferPrice', 
+            'transferBrokerageFee', 
+            'transferLegalFee', 
+            'transferOtherExpenses',
+            'transferLegalServiceFee' // 법무사 수수료 추가
+        ];
 
-realEstateType.addEventListener('change', updateSubFields);
-// 초기 상태 반영
-realEstateType.dispatchEvent(new Event('change'));
-
- // ===== 토지 영역 드롭다운 (농지 외 토지) =====
-const landType = document.getElementById('landType');
-const landAcquisitionType = document.getElementById('landAcquisitionType');
-const landCrowdedAreaField = document.getElementById('landCrowdedAreaField');
-const landCrowdedArea = document.getElementById('landCrowdedArea');
-const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField');
-// 안내문구를 위한 요소 (HTML에도 추가되어 있어야 합니다)
-const landMetroNotice = document.getElementById('landMetroNotice');
-
-function updateLandDropdowns() {
-  // 만약 취득 유형이 natural이거나 토지 유형이 'nonFarmland'가 아니라면 드롭다운 모두 숨김
-  if (landAcquisitionType.value === 'natural' || landType.value !== 'nonFarmland') {
-    landCrowdedAreaField.style.display = 'none';
-    landMetropolitanAreaField.style.display = 'none';
-    landMetroNotice.style.display = 'none';
-  } else {
-    // 농지 외 토지이고 취득 유형이 자연인이 아닐 경우, 과밀억제권역 드롭다운 표시
-    landCrowdedAreaField.style.display = 'block';
-    // 과밀억제권역의 값이 'yes'일 때만 대도시권역 드롭다운 표시
-    if (landCrowdedArea.value === 'yes') {
-      landMetropolitanAreaField.style.display = 'block';
-      // 대도시권역 드롭다운의 선택값이 'noGeneral' (아니오(중과세대상 아님))인 경우 안내문구 표시
-      const landMetroSelect = document.getElementById('landMetropolitanArea');
-      if (landMetroSelect.value === 'noGeneral') {
-        landMetroNotice.innerHTML = `
-          <p>
-            1. 법인이 수도권 과밀억제권역에 본점 설립 지점 또는 분사무소 설치<br>
-            2. 수도권과밀억제권역 내에서 설립된지 5년 미만<br>
-            3. 수도권과밀억제권역내에서 부동산 취득<br>
-            4. 중과세에 제외되는 업종(신축업, 임대업)이 아닌 경우
-          </p>
-          <p>위의 어느 하나라도 해당되지 않으면 일반과세로 처리됩니다.</p>
-        `;
-        landMetroNotice.style.display = 'block';
-      } else {
-        landMetroNotice.style.display = 'none';
-      }
-    } else {
-      landMetropolitanAreaField.style.display = 'none';
-      landMetroNotice.style.display = 'none';
-    }
-  }
-}
-
-landType.addEventListener('change', updateLandDropdowns);
-landAcquisitionType.addEventListener('change', updateLandDropdowns);
-landCrowdedArea.addEventListener('change', updateLandDropdowns);
-document.getElementById('landMetropolitanArea').addEventListener('change', updateLandDropdowns);
-
-// 초기 상태 반영 for 토지
-updateLandDropdowns();
-
-// 건축물 영역 드롭다운 업데이트 (대도시권역 3가지 옵션 적용)
-const buildingType = document.getElementById('buildingType');
-const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
-const buildingCrowdedAreaField = document.getElementById('buildingCrowdedAreaField');
-const buildingCrowdedArea = document.getElementById('buildingCrowdedArea');
-const buildingMetropolitanAreaField = document.getElementById('buildingMetropolitanAreaField');
-const buildingMetropolitanArea = document.getElementById('buildingMetropolitanArea');
-const buildingMetroNotice = document.getElementById('buildingMetroNotice');
-
-function updateBuildingDropdowns() {
-  // 만약 취득 유형이 natural이거나 건축시설물 유형이 'commercialBuilding'이 아니라면 드롭다운 모두 숨김
-  if (buildingAcquisitionType.value === 'natural' || buildingType.value !== 'commercialBuilding') {
-    buildingCrowdedAreaField.style.display = 'none';
-    buildingMetropolitanAreaField.style.display = 'none';
-    buildingMetroNotice.style.display = 'none';
-  } else {
-    // 취득 유형이 자연인이 아닌 경우, 비주거용 건축물이면 과밀억제권역 드롭다운 표시
-    buildingCrowdedAreaField.style.display = 'block';
-    // 과밀억제권역의 값이 'yes'일 때만 대도시권역 드롭다운 표시
-    if (buildingCrowdedArea.value === 'yes') {
-      buildingMetropolitanAreaField.style.display = 'block';
-      // 옵션이 'noGeneral'인 경우 안내문구 표시
-      if (buildingMetropolitanArea.value === 'noGeneral') {
-        buildingMetroNotice.innerHTML = `
-          <p>
-            1. 법인이 수도권 과밀억제권역에 본점 설립 지점 또는 분사무소 설치<br>
-            2. 수도권과밀억제권역 내에서 설립된지 5년 미만<br>
-            3. 수도권과밀억제권역내에서 부동산 취득<br>
-            4. 중과세에 제외되는 업종(신축업, 임대업)이 아닌 경우
-          </p>
-          <p>위의 어느 하나라도 해당되지 않으면 일반과세로 처리됩니다.</p>
-        `;
-        buildingMetroNotice.style.display = 'block';
-      } else {
-        buildingMetroNotice.style.display = 'none';
-      }
-    } else {
-      buildingMetropolitanAreaField.style.display = 'none';
-      buildingMetroNotice.style.display = 'none';
-    }
-  }
-}
-buildingType.addEventListener('change', updateBuildingDropdowns);
-buildingAcquisitionType.addEventListener('change', updateBuildingDropdowns);
-buildingCrowdedArea.addEventListener('change', updateBuildingDropdowns);
-buildingMetropolitanArea.addEventListener('change', updateBuildingDropdowns);
-  
-// 초기 상태 반영 for 건축물
-updateBuildingDropdowns();
-
-  // [5] 부동산 금액 입력 시 콤마 자동 적용
-  const realEstateValue = document.getElementById('realEstateValue');
-  realEstateValue.addEventListener('input', () => {
-    const raw = realEstateValue.value.replace(/,/g, '').replace(/[^0-9]/g, '');
-    realEstateValue.value = raw ? parseInt(raw, 10).toLocaleString() : '';
-  });
-
-  // [6] 차량 금액 자동 적용
-  const vehiclePrice = document.getElementById('vehiclePrice');
-  if (vehiclePrice) {
-    vehiclePrice.addEventListener('input', () => {
-      const raw = vehiclePrice.value.replace(/,/g, '').replace(/[^0-9]/g, '');
-      vehiclePrice.value = raw ? parseInt(raw, 10).toLocaleString() : '';
+        // 숫자 입력 필드 확인 후 콤마 추가
+        if (numericFields.includes(target.id)) {
+            const rawValue = target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+            target.value = rawValue ? parseInt(rawValue, 10).toLocaleString() : ''; // 콤마 추가
+        }
     });
-  }
-  
-  // [7] 기타 자산 금액 자동 적용
-  const otherAssetValue = document.getElementById('otherAssetValue');
-  if (otherAssetValue) {
-    otherAssetValue.addEventListener('input', () => {
-      const raw = otherAssetValue.value.replace(/,/g, '').replace(/[^0-9]/g, '');
-      otherAssetValue.value = raw ? parseInt(raw, 10).toLocaleString() : '';
+
+    // 부동산 유형에 따라 필드 표시/숨김
+    const updateFieldsByPropertyType = () => {
+        const propertyType = propertyTypeSelect.value;
+        
+        // 주택 선택 시 조정대상지역 & 1세대 1주택 여부 표시
+        if (propertyType === 'house') {
+            regulatedAreaField.style.display = 'block';
+            singleHouseExemptionField.style.display = 'block';
+        } else {
+            regulatedAreaField.style.display = 'none';
+            singleHouseExemptionField.style.display = 'none';
+        }
+
+        // "토지/건물"을 선택하면 감면율 선택 필드(`exemptionSection`) 표시, 아니면 숨김
+        if (exemptionSection) { // 감면율 선택 필드가 존재할 경우만 실행
+            if (propertyType === 'commercial') { 
+                exemptionSection.style.display = 'block'; // 감면율 필드 보이기
+            } else {
+                exemptionSection.style.display = 'none'; // 감면율 필드 숨기기
+            }
+        } 
+    };
+
+    // 부동산 유형 변경 시 감면율 필드 표시/숨김 반영
+    propertyTypeSelect.addEventListener('change', updateFieldsByPropertyType);
+    updateFieldsByPropertyType(); // 페이지 로드 시 초기 상태 반영
+
+    // 보유 기간 자동 계산
+    const calculateHoldingYears = () => {
+        const acquisitionDate = new Date(acquisitionDateInput.value);
+        const transferDate = new Date(transferDateInput.value);
+
+        if (isNaN(acquisitionDate) || isNaN(transferDate)) {
+            holdingYearsDisplay.value = '날짜를 입력하세요.';
+            return;
+        }
+
+        const diffInMilliseconds = transferDate - acquisitionDate;
+        if (diffInMilliseconds < 0) {
+            holdingYearsDisplay.value = '양도일이 취득일보다 빠릅니다.';
+            return;
+        }
+
+        const diffInYears = diffInMilliseconds / (1000 * 60 * 60 * 24 * 365);
+        holdingYearsDisplay.value = diffInYears.toFixed(2) + '년';
+    };
+
+    acquisitionDateInput.addEventListener('change', calculateHoldingYears);
+    transferDateInput.addEventListener('change', calculateHoldingYears);
+   
+    // 모달 입력 필드를 초기화하는 공통 함수
+    const resetFields = (modalId) => {
+        document.querySelectorAll(`#${modalId} input[type="text"]`).forEach((input) => {
+            input.value = ''; // 입력 필드 값 초기화
+        });
+    };
+
+    // 모달 열기/닫기 공통 함수
+    const openModal = (modal) => {
+        modal.style.display = 'block';
+    };
+
+    const closeModal = (modal, modalId) => {
+        modal.style.display = 'none';
+        if (modalId) resetFields(modalId); // 모달 닫을 때 입력 필드 초기화
+    };
+
+    // 취득가액 모달 열기/닫기
+    toggleAcquisitionButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (acquisitionModal.style.display === 'block') {
+            closeModal(acquisitionModal);
+        } else {
+            openModal(acquisitionModal);
+        }
     });
-  }
 
-  // ===== 신고하기 버튼 토글 이벤트 추가 =====
-  document.getElementById('reportToggleButton').addEventListener('click', () => {
-    const reportSection = document.getElementById('reportSection');
-    if (reportSection.style.display === 'none' || reportSection.style.display === '') {
-      reportSection.style.display = 'block';
-    } else {
-      reportSection.style.display = 'none';
-    }
-  });
+    closeAcquisitionModal.addEventListener('click', (event) => {
+        event.preventDefault();
+        closeModal(acquisitionModal);
+    });
 
-  // ============================================================
-  // 매매모달 관련 이벤트 처리 (업데이트된 매매 표준세율 및 세율 정보 저장)
-  // ============================================================
-  const saleModalEl = document.getElementById('saleModal');
-  const confirmSaleTypeBtn = document.getElementById('confirmSaleType');
-  const closeSaleModalBtn = document.getElementById('closeSaleModal');
+    // 취득가액 저장
+    saveAcquisitionButton.addEventListener('click', () => {
+        // 취득가액 입력 필드 가져오기
+        const acquisitionPriceElement = document.getElementById('acquisitionPrice');
 
-  document.getElementById('saleButton').addEventListener('click', () => {
-    saleModalEl.style.display = 'flex';
-  });
+        // 경비 항목 필드 가져오기
+        const acquisitionBrokerageFee = parseInt(document.getElementById('acquisitionBrokerageFee').value.replace(/,/g, '') || '0', 10);
+        const acquisitionLegalFee = parseInt(document.getElementById('acquisitionLegalFee').value.replace(/,/g, '') || '0', 10);
+        const acquisitionOtherExpenses = parseInt(document.getElementById('acquisitionOtherExpenses').value.replace(/,/g, '') || '0', 10);
 
-  confirmSaleTypeBtn.addEventListener('click', () => {
-    const assetValueNum = parseInt(realEstateValue.value.replace(/,/g, '') || '0', 10);
-    if (isNaN(assetValueNum) || assetValueNum <= 0) {
-      alert('유효한 금액을 입력하세요.');
-      return;
-    }
+        // 경비 합산
+        const totalExpenses = acquisitionBrokerageFee + acquisitionLegalFee + acquisitionOtherExpenses;
+
+        // 취득가액 값 읽기, 없으면 0으로 처리
+        const acquisitionPrice = acquisitionPriceElement ? parseInt(acquisitionPriceElement.value.replace(/,/g, '') || '0', 10) : 0;
+
+        // 총 취득가액 계산
+        const totalAcquisition = acquisitionPrice + totalExpenses;
+
+        // 결과 표시
+        totalAcquisitionDisplay.textContent = `총 취득가액: ${totalAcquisition.toLocaleString()} 원`;
+
+        // 모달 닫기
+        closeModal(acquisitionModal);
+    });
+
+    // 필요경비 모달 열기/닫기
+    toggleExpensesButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        openModal(expensesModal);
+    });
+
+    closeExpensesModal.addEventListener('click', (event) => {
+        event.preventDefault();
+        closeModal(expensesModal);
+    });
+
+    // 필요경비 저장
+    saveExpensesButton.addEventListener('click', () => {
+        // 필요경비 항목 필드 값 읽기
+        const transferBrokerageFee = parseInt(document.getElementById('transferBrokerageFee').value.replace(/,/g, '') || '0', 10); // 자본적 지출
+        const transferLegalFee = parseInt(document.getElementById('transferLegalFee').value.replace(/,/g, '') || '0', 10); // 중개 수수료
+        const transferLegalServiceFee = parseInt(document.getElementById('transferLegalServiceFee').value.replace(/,/g, '') || '0', 10); // 법무사 비용
+        const transferOtherExpenses = parseInt(document.getElementById('transferOtherExpenses').value.replace(/,/g, '') || '0', 10); // 기타 비용
+
+        // 필요경비 합산
+        const totalExpenses = transferBrokerageFee + transferLegalFee + transferLegalServiceFee + transferOtherExpenses;
+
+        // 결과 표시
+        totalExpensesDisplay.textContent = `총 필요경비: ${totalExpenses.toLocaleString()} 원`;
+
+        // 모달 닫기
+        closeModal(expensesModal);
+    });
+
+    // 필요경비 입력 필드 상태 관리
+    document.querySelectorAll('#expensesModal input[type="text"]').forEach((input) => {
+        input.addEventListener('input', () => {
+            // 사용자가 값을 입력하면 자동으로 체크된 상태로 변경
+            const checkbox = document.getElementById(input.id.replace('Amount', ''));
+            if (checkbox) checkbox.checked = !!input.value.trim();
+        });
+    });
+
+    // 감면율 가져오기 함수 (오류 수정)
+    const getSelectedExemptionRate = () => {
+        const exemptionRateElement = document.getElementById('exemptionRate'); // 감면율 선택 필드 가져오기
+        return exemptionRateElement ? parseInt(exemptionRateElement.value, 10) || 0 : 0; // 값이 없으면 기본값 0 반환
+    };
     
-    let acquisitionTax = 0;
-    let appliedTaxRate = "";
-    const selectedTypeVal = document.getElementById('realEstateType').value;
-    
-    // =====================
-    // 1. 주택 계산
-    // =====================
-    if (selectedTypeVal === 'house') {
-      const acquisitionType = document.getElementById('acquisitionType').value;
-      const houseTypeVal = document.getElementById('houseType').value;
-      
-      if (acquisitionType === 'oneHouse') {
-        if (houseTypeVal === 'premium') {
-          // 고급 주택: 12% 중과세
-          acquisitionTax = Math.floor(assetValueNum * 0.12);
-          appliedTaxRate = "12%";
-        } else if (houseTypeVal === 'highValue') {
-          // 고가 주택 (9억 초과): 무조건 3%
-          acquisitionTax = Math.floor(assetValueNum * 0.03);
-          appliedTaxRate = "3%";
-        } else if (houseTypeVal === 'general6') {
-          // 일반 주택 (6억원 이하): 1%
-          acquisitionTax = Math.floor(assetValueNum * 0.01);
-          appliedTaxRate = "1%";
-        } else if (houseTypeVal === 'general9') {
-          if (assetValueNum <= 600000000) {
-            acquisitionTax = Math.floor(assetValueNum * 0.01);
-            appliedTaxRate = "1%";
-          } else if (assetValueNum <= 900000000) {
-            const effectiveRate = 0.01 + ((assetValueNum - 600000000) / 300000000) * (0.03 - 0.01);
-            acquisitionTax = Math.floor(assetValueNum * effectiveRate);
-            appliedTaxRate = `${(effectiveRate * 100).toFixed(2)}%`;
-          } else {
-            acquisitionTax = Math.floor(assetValueNum * 0.03);
-            appliedTaxRate = "3%";
-          }
-        } else {
-          if (assetValueNum <= 600000000) {
-            acquisitionTax = Math.floor(assetValueNum * 0.01);
-            appliedTaxRate = "1%";
-          } else if (assetValueNum <= 900000000) {
-            const effectiveRate = 0.01 + ((assetValueNum - 600000000) / 300000000) * (0.03 - 0.01);
-            acquisitionTax = Math.floor(assetValueNum * effectiveRate);
-            appliedTaxRate = `${(effectiveRate * 100).toFixed(2)}%`;
-          } else {
-            acquisitionTax = Math.floor(assetValueNum * 0.03);
-            appliedTaxRate = "3%";
-          }
+    // 계산 버튼 클릭 이벤트
+    calculateButton.addEventListener('click', () => {
+        const acquisitionDate = new Date(acquisitionDateInput.value);
+        const transferDate = new Date(transferDateInput.value);
+
+        // 보유 기간 계산
+        if (isNaN(acquisitionDate) || isNaN(transferDate)) {
+            alert('취득일과 양도일을 입력해주세요.');
+            return;
         }
-      }
-      // 1-2. 2주택자
-      else if (acquisitionType === 'twoHouse') {
-        const adjustedArea = document.getElementById('adjustedArea').value;
-        if (adjustedArea === 'yes') {
-          acquisitionTax = Math.floor(assetValueNum * 0.08);
-          appliedTaxRate = "8%";
-        } else {
-          if (houseTypeVal === 'premium') {
-            acquisitionTax = Math.floor(assetValueNum * 0.12);
-            appliedTaxRate = "12%";
-          } else if (houseTypeVal === 'highValue') {
-            acquisitionTax = Math.floor(assetValueNum * 0.03);
-            appliedTaxRate = "3%";
-          } else if (houseTypeVal === 'general6') {
-            acquisitionTax = Math.floor(assetValueNum * 0.01);
-            appliedTaxRate = "1%";
-          } else if (houseTypeVal === 'general9') {
-            if (assetValueNum <= 600000000) {
-              acquisitionTax = Math.floor(assetValueNum * 0.01);
-              appliedTaxRate = "1%";
-            } else if (assetValueNum <= 900000000) {
-              const effectiveRate = 0.01 + ((assetValueNum - 600000000) / 300000000) * (0.03 - 0.01);
-              acquisitionTax = Math.floor(assetValueNum * effectiveRate);
-              appliedTaxRate = `${(effectiveRate * 100).toFixed(2)}%`;
+
+        const diffInMilliseconds = transferDate - acquisitionDate;
+        if (diffInMilliseconds < 0) {
+            alert('양도일이 취득일보다 빠를 수 없습니다.');
+            return;
+        }
+
+        const diffInYears = diffInMilliseconds / (1000 * 60 * 60 * 24 * 365);
+        const holdingYears = parseFloat(diffInYears.toFixed(2)); // 소수점 2자리까지만 유지
+        const holdingYearsInt = Math.floor(holdingYears); // 소수점 버림하여 정수화
+        holdingYearsDisplay.value = `${holdingYearsInt} 년`; // UI에 정수화된 보유 기간 표시
+
+        // 양도차익 계산
+        const acquisitionPrice = parseInt(totalAcquisitionDisplay.textContent.replace(/[^0-9]/g, '') || '0', 10); // 취득가액
+        const expenses = parseInt(totalExpensesDisplay.textContent.replace(/[^0-9]/g, '') || '0', 10); // 필요경비
+        const transferPrice = parseInt(document.getElementById('transferPrice')?.value.replace(/,/g, '') || '0', 10); // 양도가액
+        const profit = transferPrice - acquisitionPrice - expenses;
+
+        if (profit < 0) {
+            alert('양도차익이 0보다 작습니다. 입력값을 확인해주세요.');
+            return;
+        }
+        
+        // 기본 세율 및 장기보유특별공제율 계산
+        let taxRate = 0;
+        let surcharge = 0;
+        let longTermDeductionRate = 0;
+        let longTermDeductionAmount = 0; // 장기보유특별공제 금액
+
+        if (propertyTypeSelect.value === 'house') {
+            const regulatedArea = document.getElementById('regulatedArea').value === 'yes'; // 조정대상지역 여부
+            const singleHouseExemption = document.getElementById('singleHouseExemption').value === 'yes'; // 1세대 1주택 여부
+            const isMultiHouseOwner = document.getElementById('singleHouseExemption').value === 'no'; // 다주택 여부
+
+            if (regulatedArea && isMultiHouseOwner) {
+                // 조정대상지역 다주택자는 공제율 0% (정책에 따라 다를 수 있음)
+                longTermDeductionRate = 0;
+            } else if (singleHouseExemption) {
+                // 1세대 1주택자: 보유기간 3년 이상이면 매년 4% 적용 (최대 80%)
+                longTermDeductionRate = holdingYearsInt >= 3 ? Math.min(holdingYearsInt * 0.04, 0.8) : 0;
             } else {
-              acquisitionTax = Math.floor(assetValueNum * 0.03);
-              appliedTaxRate = "3%";
+                // 다주택자 (조정대상지역이 아닌 경우): 보유기간 3년 이상이면 매년 2% 적용 (최대 30%)
+                longTermDeductionRate = holdingYearsInt >= 3 ? Math.min(holdingYearsInt * 0.02, 0.3) : 0;
             }
-          } else {
-            if (assetValueNum <= 600000000) {
-              acquisitionTax = Math.floor(assetValueNum * 0.01);
-              appliedTaxRate = "1%";
-            } else if (assetValueNum <= 900000000) {
-              const effectiveRate = 0.01 + ((assetValueNum - 600000000) / 300000000) * (0.03 - 0.01);
-              acquisitionTax = Math.floor(assetValueNum * effectiveRate);
-              appliedTaxRate = `${(effectiveRate * 100).toFixed(2)}%`;
+
+            // 주택의 기본 세율 및 중과세율 설정
+            taxRate = regulatedArea ? 0.2 : 0.1; // 조정대상지역은 20%, 비조정대상지역은 10%
+            surcharge = regulatedArea ? 0.1 : 0; // 조정대상지역은 추가 10%, 비조정대상지역은 0%
+        } else if (propertyTypeSelect.value === 'commercial') {
+            // 토지/건물 (상업용)의 경우: 보유기간 3년부터 6%에서 시작하여 매년 2%씩 증가, 최대 30%
+            if (holdingYearsInt >= 3) {
+                longTermDeductionRate = Math.min((holdingYearsInt - 3) * 0.02 + 0.06, 0.3);
             } else {
-              acquisitionTax = Math.floor(assetValueNum * 0.03);
-              appliedTaxRate = "3%";
+                longTermDeductionRate = 0;
             }
-          }
+        } else if (propertyTypeSelect.value === 'landForest') {
+            // 토지/임야의 경우
+            longTermDeductionRate = holdingYearsInt >= 3 ? Math.min(holdingYearsInt * 0.03, 0.3) : 0;
+            taxRate = 0.15; // 기본 세율 15%
+        } else if (propertyTypeSelect.value === 'unregistered') {
+            // 미등기부동산의 경우
+            longTermDeductionRate = 0; // 미등기부동산은 장기보유특별공제 없음
+            taxRate = 0.7; // 고정 세율 70%
+        } else if (propertyTypeSelect.value === 'others') {
+            // 기타 권리
+            longTermDeductionRate = 0;
+            taxRate = 0.2; // 기타 권리는 고정 세율 20%
         }
-      }
-      // 1-3. 3주택자
-      else if (acquisitionType === 'threeHouse') {
-        const adjustedArea = document.getElementById('adjustedArea').value;
-        if (adjustedArea === 'yes') {
-          acquisitionTax = Math.floor(assetValueNum * 0.12);
-          appliedTaxRate = "12%";
-        } else {
-          acquisitionTax = Math.floor(assetValueNum * 0.08);
-          appliedTaxRate = "8%";
+
+        // 장기보유특별공제 금액 계산
+        longTermDeductionAmount = profit * longTermDeductionRate;
+
+        // 과세표준 계산 (장기보유특별공제 반영)
+        let taxableProfit = profit - longTermDeductionAmount;
+
+        // 1세대 1주택 비과세 조건 적용 (12억 비과세)
+        let nonTaxableAmount = 0;
+        if (propertyTypeSelect.value === 'house' && document.getElementById('singleHouseExemption').value === 'yes' && holdingYearsInt >= 2) {
+            const taxExemptLimit = 1200000000;
+            // 12억 한도 내에서 취득가액을 차감한 금액이 비과세 한도
+            nonTaxableAmount = Math.max(taxExemptLimit - acquisitionPrice, 0);
+            if (transferPrice <= taxExemptLimit) {
+               taxableProfit = 0;
+            } else {
+                taxableProfit = Math.max(profit - nonTaxableAmount, 0);
+            }
         }
-      }
-      // 1-4. 4주택자
-      else if (acquisitionType === 'fourHouse') {
-        acquisitionTax = Math.floor(assetValueNum * 0.12);
-        appliedTaxRate = "12%";
-      }
-      // 1-5. 법인 (영리, 비영리 모두)
-      else if (acquisitionType === 'nonProfitCorporate' || acquisitionType === 'forProfitCorporate') {
-        acquisitionTax = Math.floor(assetValueNum * 0.12);
-        appliedTaxRate = "12%";
-      }
-      window.selectedAcquisitionMethod = "매매취득세";
-    }
-    // =====================
-    // 2. 토지 계산
-    // =====================
-    else if (selectedTypeVal === 'land') {
-      const landTypeVal = document.getElementById('landType').value;
-      if (landTypeVal === 'farmland') {
-        acquisitionTax = Math.floor(assetValueNum * 0.03);
-        appliedTaxRate = "3%";
-      } else if (landTypeVal === 'nonFarmland') {
-        acquisitionTax = Math.floor(assetValueNum * 0.04);
-        appliedTaxRate = "4%";
-      } else {
-        acquisitionTax = Math.floor(assetValueNum * 0.04);
-        appliedTaxRate = "4%";
-      }
-      window.selectedAcquisitionMethod = "매매취득세";
-    }
-    // =====================
-    // 3. 건축물 계산
-    // =====================
-    else if (selectedTypeVal === 'building') {
-      acquisitionTax = Math.floor(assetValueNum * 0.04);
-      appliedTaxRate = "4%";
-      window.selectedAcquisitionMethod = "매매취득세";
-    }
-    
-    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
-    if (acquisitionTaxField) {
-      acquisitionTaxField.value = acquisitionTax;
-    }
-    window.selectedAppliedTaxRate = appliedTaxRate;
-    
-    saleModalEl.style.display = 'none';
-  });
-  
-  closeSaleModalBtn.addEventListener('click', () => {
-    saleModalEl.style.display = 'none';
-  });
-  
-  window.addEventListener('click', (e) => {
-    if (e.target === saleModalEl) {
-      saleModalEl.style.display = 'none';
-    }
-  });
-  
-  // === 증여 모달 관련 코드 (업데이트된 증여 표준세율 및 세율 정보 저장) ===
-  const giftButtonEl = document.getElementById('giftButton');
-  const giftModalEl = document.getElementById('giftModal');
-  const confirmGiftTypeBtn = document.getElementById('confirmGiftType');
-  const closeGiftModalBtn = document.getElementById('closeGiftModal');
-  
-  giftButtonEl.addEventListener('click', () => {
-    giftModalEl.style.display = 'flex';
-  });
-  
-  confirmGiftTypeBtn.addEventListener('click', () => {
-    const giftTypeVal = document.getElementById('giftType').value;
-    const assetValueNumGift = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-  
-    if (isNaN(assetValueNumGift) || assetValueNumGift <= 0) {
-      alert('유효한 금액을 입력하세요.');
-      return;
-    }
-  
-    let taxRateGift = 0;
-    let appliedTaxRateGift = "";
-    if (giftTypeVal === 'general') {
-      taxRateGift = 0.035;
-      appliedTaxRateGift = "3.5%";
-    } else if (giftTypeVal === 'corporate') {
-      taxRateGift = 0.028;
-      appliedTaxRateGift = "2.8%";
-    }
-  
-    const acquisitionTaxGift = Math.floor(assetValueNumGift * taxRateGift);
-    const acquisitionTaxFieldGift = document.getElementById('calculatedAcquisitionTax');
-    if (!acquisitionTaxFieldGift) {
-      console.error('숨겨진 필드 "calculatedAcquisitionTax"를 찾을 수 없습니다.');
-      return;
-    }
-    acquisitionTaxFieldGift.value = acquisitionTaxGift;
-    window.selectedAcquisitionMethod = "증여취득세";
-    window.selectedAppliedTaxRate = appliedTaxRateGift;
-    giftModalEl.style.display = 'none';
-  });
-  
-  closeGiftModalBtn.addEventListener('click', () => {
-    giftModalEl.style.display = 'none';
-  });
-  
-  window.addEventListener('click', (e) => {
-    if (e.target === giftModalEl) {
-      giftModalEl.style.display = 'none';
-    }
-  });
-  
-  // === 상속 모달 관련 코드 (업데이트된 상속 표준세 적용 및 세율 정보 저장) ===
-  const inheritanceButtonEl = document.getElementById('inheritanceButton');
-  const inheritanceModalEl = document.getElementById('inheritanceModal');
-  const confirmInheritanceTypeBtn = document.getElementById('confirmInheritanceType');
-  const closeInheritanceModalBtn = document.getElementById('closeInheritanceModal');
-  
-  inheritanceButtonEl.addEventListener('click', () => {
-    inheritanceModalEl.style.display = 'flex';
-  });
-  
-  confirmInheritanceTypeBtn.addEventListener('click', () => {
-    const assetValueNumInheritance = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-    if (isNaN(assetValueNumInheritance) || assetValueNumInheritance <= 0) {
-      alert('유효한 금액을 입력하세요.');
-      return;
-    }
-    
-    let taxRateInheritance = 0;
-    let appliedTaxRateInheritance = "";
-    const selectedTypeInheritance = document.getElementById('realEstateType').value;
-    
-    if (selectedTypeInheritance === 'land') {
-      const landTypeVal = document.getElementById('landType').value;
-      if (landTypeVal === 'farmland') {
-        taxRateInheritance = 0.023;
-        appliedTaxRateInheritance = "2.3%";
-      } else {
-        taxRateInheritance = 0.028;
-        appliedTaxRateInheritance = "2.8%";
-      }
-    } else {
-      taxRateInheritance = 0.028;
-      appliedTaxRateInheritance = "2.8%";
-    }
-    
-    const acquisitionTaxInheritance = Math.floor(assetValueNumInheritance * taxRateInheritance);
-    const acquisitionTaxFieldInheritance = document.getElementById('calculatedAcquisitionTax');
-    if (!acquisitionTaxFieldInheritance) {
-      console.error('숨겨진 필드 "calculatedAcquisitionTax"를 찾을 수 없습니다.');
-      return;
-    }
-    acquisitionTaxFieldInheritance.value = acquisitionTaxInheritance;
-    window.selectedAcquisitionMethod = "상속취득세";
-    window.selectedAppliedTaxRate = appliedTaxRateInheritance;
-    inheritanceModalEl.style.display = 'none';
-  });
-  
-  closeInheritanceModalBtn.addEventListener('click', () => {
-    inheritanceModalEl.style.display = 'none';
-  });
-  
-  window.addEventListener('click', (e) => {
-    if (e.target === inheritanceModalEl) {
-      inheritanceModalEl.style.display = 'none';
-    }
-  });
-  
-  // === 원시취득 모달 관련 코드 (업데이트된 원시취득 표준세율 및 세율 정보 저장) ===
-  const originalButtonEl = document.getElementById('originalButton');
-  const originalModalEl = document.getElementById('originalModal');
-  const originalCategoryEl = document.getElementById('originalCategory');
-  const confirmOriginalTypeBtn = document.getElementById('confirmOriginalType');
-  
-  originalButtonEl.addEventListener('click', () => {
-    const selectedTypeOriginal = document.getElementById('realEstateType').value;
-    if (selectedTypeOriginal !== 'building') {
-      alert('원시취득은 건축물에만 해당됩니다.');
-      return;
-    }
-  
-    originalCategoryEl.innerHTML = `
-        <option value="residential">주거용</option>
-        <option value="nonResidential">비주거용</option>
-    `;
-  
-    originalModalEl.style.display = 'flex';
-  });
-  
-  confirmOriginalTypeBtn.addEventListener('click', () => {
-    const assetValueNumOriginal = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-    if (isNaN(assetValueNumOriginal) || assetValueNumOriginal <= 0) {
-      alert('유효한 금액을 입력하세요.');
-      return;
-    }
-    
-    const acquisitionTaxOriginal = Math.floor(assetValueNumOriginal * 0.028);
-    const acquisitionTaxFieldOriginal = document.getElementById('calculatedAcquisitionTax');
-    if (acquisitionTaxFieldOriginal) {
-      acquisitionTaxFieldOriginal.value = acquisitionTaxOriginal;
-    }
-    window.selectedAcquisitionMethod = "원시취득세";
-    window.selectedAppliedTaxRate = "2.8%";
-    originalModalEl.style.display = 'none';
-  });
-  
-  document.getElementById('closeOriginalModal').addEventListener('click', () => {
-    originalModalEl.style.display = 'none';
-  });
-  
-  // === 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력) ===
-  document.getElementById('calculateButton').addEventListener('click', () => {
-    const acquisitionTaxElement = document.getElementById('calculatedAcquisitionTax');
-    if (!acquisitionTaxElement || acquisitionTaxElement.value === '') {
-      alert('모달에서 취득세를 계산해주세요.');
-      return;
-    }
-    
-    const acquisitionTaxFinal = parseInt(acquisitionTaxElement.value, 10);
-    if (isNaN(acquisitionTaxFinal) || acquisitionTaxFinal <= 0) {
-      alert('유효한 취득세 값이 없습니다.');
-      return;
-    }
-    
-    const educationTax = Math.floor(acquisitionTaxFinal * 0.1);
-    const ruralTax = Math.floor(acquisitionTaxFinal * 0.2);
-    const baseTotalTax = acquisitionTaxFinal + educationTax + ruralTax;
-    
-    const reportDeadlineSelect = document.getElementById('reportDeadline');
-    let allowedDays = 60;
-    if (reportDeadlineSelect.value === '3months') {
-      allowedDays = 90;
-    } else if (reportDeadlineSelect.value === '6months') {
-      allowedDays = 180;
-    } else if (reportDeadlineSelect.value === '9months') {
-      allowedDays = 270;
-    }
-    
-    const baseAcquisitionDate = new Date('2024-01-01');
-    const allowedDeadline = new Date(baseAcquisitionDate.getTime() + allowedDays * 24 * 60 * 60 * 1000);
-    
-    const reportDateInput = document.getElementById('reportDate').value;
-    let penaltyTax = 0;
-    if (reportDateInput) {
-      const reportDate = new Date(reportDateInput);
-      if (reportDate > allowedDeadline) {
-        const lateTime = reportDate.getTime() - allowedDeadline.getTime();
-        const lateDays = Math.ceil(lateTime / (24 * 60 * 60 * 1000));
-        penaltyTax = Math.floor(acquisitionTaxFinal * 0.001 * lateDays);
-      }
-    }
-    
-    const totalTax = baseTotalTax + penaltyTax;
-    
-    const acquisitionMethodFinal = window.selectedAcquisitionMethod || "취득세";
-    const appliedTaxRateFinal = window.selectedAppliedTaxRate || "0%";
-    
-    const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = `
-      <h3>계산 결과</h3>
-      <p>${acquisitionMethodFinal}: ${acquisitionTaxFinal.toLocaleString()} 원 (적용 세율: ${appliedTaxRateFinal})</p>
-      <p>지방교육세: ${educationTax.toLocaleString()} 원</p>
-      <p>농어촌특별세: ${ruralTax.toLocaleString()} 원</p>
-      <p>가산세 (연체): ${penaltyTax.toLocaleString()} 원</p>
-      <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
-    `;
-  });
+
+        // 기본공제 적용 (과세표준에서 차감)
+        const basicDeduction = propertyTypeSelect.value !== 'unregistered' ? 2500000 : 0; // 미등기 부동산 기본공제 없음
+        let taxableProfitAfterDeduction = Math.max(taxableProfit - basicDeduction, 0);
+        
+        // 2023년 개정된 누진세율표
+        const taxBrackets = [
+            { limit: 14000000, rate: 0.06, deduction: 0 },
+            { limit: 50000000, rate: 0.15, deduction: 1260000 },
+            { limit: 88000000, rate: 0.24, deduction: 5760000 },
+            { limit: 150000000, rate: 0.35, deduction: 15440000 },
+            { limit: 300000000, rate: 0.38, deduction: 19940000 },
+            { limit: 500000000, rate: 0.40, deduction: 25940000 },
+            { limit: 1000000000, rate: 0.42, deduction: 35940000 },
+            { limit: Infinity, rate: 0.45, deduction: 65940000 }
+        ];
+
+        // 양도소득세 계산 (누진세율 적용)
+        let rawTax = 0;
+        let remainingProfit = taxableProfitAfterDeduction; // 남은 과세표준
+
+        for (let i = 0; i < taxBrackets.length; i++) {
+            const bracket = taxBrackets[i];
+            const previousLimit = i === 0 ? 0 : taxBrackets[i - 1].limit; // 이전 구간 상한
+
+            // 현재 구간에서 남은 금액 계산
+            if (remainingProfit <= 0) break; // 남은 금액이 없으면 종료
+            const taxableAmount = Math.min(bracket.limit - previousLimit, remainingProfit);
+            const taxForBracket = taxableAmount * bracket.rate; // 현재 구간의 세금 계산
+            rawTax += taxForBracket; // 세금 누적
+            remainingProfit -= taxableAmount; // 남은 금액 갱신
+        }
+
+        // 누진공제 적용
+        const applicableDeduction = taxBrackets.find(bracket => taxableProfitAfterDeduction <= bracket.limit)?.deduction || 0;
+        rawTax -= applicableDeduction; // 누진 공제 반영
+
+        // 감면율 적용
+        const selectedExemptionRate = getSelectedExemptionRate();
+        let ruralTax = 0;
+
+        if (propertyTypeSelect.value === 'commercial' && selectedExemptionRate > 0) {
+            const taxReduction = rawTax * (selectedExemptionRate / 100);
+            ruralTax = Math.floor(taxReduction * 0.2);
+            rawTax -= taxReduction;
+        }
+
+        // 부가세 계산
+        const educationTax = Math.floor(rawTax * 0.1);
+
+        // 총 세금 계산
+        const totalTax = rawTax + educationTax + ruralTax;
+
+        // 결과 출력 (12억 비과세 금액 포함)
+        document.getElementById('result').innerHTML = `
+            <h3>계산 결과</h3>
+            <p>보유 기간: ${holdingYearsInt} 년</p>
+            <p>장기보유특별공제율: ${(longTermDeductionRate * 100).toFixed(1)}%</p>
+            <p>양도차익: ${profit.toLocaleString()} 원</p>
+            <p>장기보유특별공제 금액: ${longTermDeductionAmount.toLocaleString()} 원</p>
+            <p>12억 비과세 금액: ${nonTaxableAmount.toLocaleString()} 원</p>
+            <p>과세표준 (기본공제 후): ${taxableProfitAfterDeduction.toLocaleString()} 원</p>
+            <p>감면율: ${selectedExemptionRate}%</p>
+            <p>양도소득세: ${rawTax.toLocaleString()} 원</p>
+            <p>지방교육세: ${educationTax.toLocaleString()} 원</p>
+            <p>농어촌특별세: ${ruralTax.toLocaleString()} 원</p>
+            <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
+        `;
+    });
 });
