@@ -82,35 +82,37 @@ document.addEventListener('DOMContentLoaded', () => {
   landCrowdedArea.dispatchEvent(new Event('change'));
 
   // [4] 추가 수정 2: 건축물 영역 - 비주거용 건축물 선택 시 추가 드롭다운 처리
-  // 취득 유형이 자연인이 아닌 경우에만 표시
-  const buildingType = document.getElementById('buildingType');
-  const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
-  const buildingCrowdedAreaField = document.getElementById('buildingCrowdedAreaField');
-  const buildingCrowdedArea = document.getElementById('buildingCrowdedArea');
-  const buildingMetropolitanAreaField = document.getElementById('buildingMetropolitanAreaField');
+// 취득 유형이 자연인이 아닌 경우에만 표시
+const buildingType = document.getElementById('buildingType');
+const buildingAcquisitionType = document.getElementById('buildingAcquisitionType');
+const buildingCrowdedAreaField = document.getElementById('buildingCrowdedAreaField');
+const buildingCrowdedArea = document.getElementById('buildingCrowdedArea');
+const buildingMetropolitanAreaField = document.getElementById('buildingMetropolitanAreaField');
 
-  function updateBuildingDropdowns() {
-    // 비주거용 건축물 선택 시, 그리고 취득 유형이 자연인이 아닐 때만 표시
-    if (buildingType.value === 'commercialBuilding' && buildingAcquisitionType.value !== 'natural') {
-      buildingCrowdedAreaField.style.display = 'block';
-    } else {
-      buildingCrowdedAreaField.style.display = 'none';
-      buildingMetropolitanAreaField.style.display = 'none';
-    }
+function updateBuildingDropdowns() {
+  // 비주거용 건축물 선택 시, 그리고 취득 유형이 자연인이 아닐 때만 표시
+  if (buildingType.value === 'commercialBuilding' && buildingAcquisitionType.value !== 'natural') {
+    buildingCrowdedAreaField.style.display = 'block';
+  } else {
+    buildingCrowdedAreaField.style.display = 'none';
+    buildingMetropolitanAreaField.style.display = 'none';
   }
-  buildingType.addEventListener('change', updateBuildingDropdowns);
-  buildingAcquisitionType.addEventListener('change', updateBuildingDropdowns);
+}
+buildingType.addEventListener('change', updateBuildingDropdowns);
+buildingAcquisitionType.addEventListener('change', updateBuildingDropdowns);
 
-  buildingCrowdedArea.addEventListener('change', () => {
-    if (buildingCrowdedArea.value === 'no') {
-      buildingMetropolitanAreaField.style.display = 'block';
-    } else {
-      buildingMetropolitanAreaField.style.display = 'none';
-    }
-  });
-  // 초기 상태 반영 for 건축물
-  updateBuildingDropdowns();
-  buildingCrowdedArea.dispatchEvent(new Event('change'));
+buildingCrowdedArea.addEventListener('change', () => {
+  // 수정된 조건: 과밀억제권역이 '예'인 경우에 대도시권 여부 드롭다운 표시
+  if (buildingCrowdedArea.value === 'yes') {
+    buildingMetropolitanAreaField.style.display = 'block';
+  } else {
+    buildingMetropolitanAreaField.style.display = 'none';
+  }
+});
+
+// 초기 상태 반영 for 건축물
+updateBuildingDropdowns();
+buildingCrowdedArea.dispatchEvent(new Event('change'));
 
   // [5] 부동산 금액 입력 시 콤마 자동 적용
   const realEstateValue = document.getElementById('realEstateValue');
