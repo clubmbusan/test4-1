@@ -113,27 +113,31 @@ document.addEventListener('DOMContentLoaded', () => {
   landAcquisitionType.dispatchEvent(new Event('change'));
   landCrowdedArea.dispatchEvent(new Event('change'));
 
- // ====================================================
+// ====================================================
 // [B] 건축물 부분 - 비거주용건축물 선택 시, 법인일 때만 추가 드롭다운 표시
 // ====================================================
 const buildingType = document.getElementById('buildingType'); // 건축물 용도 선택
 const buildingAcquisitionType = document.getElementById('buildingAcquisitionType'); // 취득 유형 (자연인, 영리법인, 비영리법인)
 const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드 (건축물)
 const crowdedArea = document.getElementById('crowdedArea');           // 과밀억제권역 여부 드롭다운 (건축물)
-const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드 (건축물)
-const metropolitanArea = document.getElementById('metropolitanArea');           // 대도시권역 여부 드롭다운 (건축물)
+const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시 여부 필드 (건축물)
+const metropolitanArea = document.getElementById('metropolitanArea');           // 대도시 여부 드롭다운 (건축물)
+
+// 초기 상태에서 확실히 숨김 처리
+crowdedAreaField.style.display = 'none';
+metropolitanAreaField.style.display = 'none';
 
 function checkBuildingOptions() {
-  // 기본적으로 숨김 처리
+  // 우선 두 필드를 항상 숨깁니다.
   crowdedAreaField.style.display = 'none';
   metropolitanAreaField.style.display = 'none';
-
-  // 만약 취득 유형이 자연인이면 추가 드롭다운을 표시하지 않음
-  if (buildingAcquisitionType.value === 'natural') {
+  
+  // 취득 유형이 법인이 아닌 경우 (즉, 자연인일 경우)에는 아무 것도 표시하지 않음
+  if (buildingAcquisitionType.value !== 'forProfit' && buildingAcquisitionType.value !== 'nonProfit') {
     return;
   }
   
-  // 건축물 용도가 "비거주용건축물"일 때만 추가 드롭다운 표시
+  // 취득 유형이 법인일 경우에만, 건축물 용도가 "비거주용건축물"이면 과밀억제권역 드롭다운 표시
   if (buildingType.value === 'commercialBuilding') {
     crowdedAreaField.style.display = 'block';
   }
@@ -143,6 +147,7 @@ buildingType.addEventListener('change', checkBuildingOptions);
 buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
 
 crowdedArea.addEventListener('change', () => {
+  // 과밀억제권역 드롭다운에서 '예'를 선택한 경우에만 대도시 여부 드롭다운을 표시
   if (crowdedArea.value === 'yes') {
     metropolitanAreaField.style.display = 'block';
   } else {
