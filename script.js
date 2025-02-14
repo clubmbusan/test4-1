@@ -53,6 +53,66 @@ document.addEventListener('DOMContentLoaded', () => {
   // 초기 상태 반영
   realEstateType.dispatchEvent(new Event('change'));
 
+  // === 토지 부분 수정 ===
+  // 추가로 필요한 요소들 (HTML에서 미리 추가되어 있어야 함)
+  const landType = document.getElementById('landType'); // 농지 / 농지외토지 선택
+  const landAcquisitionType = document.getElementById('landAcquisitionType'); // 자연인, 영리법인, 비영리법인 선택
+  const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 필드
+  const landCrowdedArea = document.getElementById('landCrowdedArea'); // 과밀억제권역 여부 드롭다운
+  const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField'); // 대도시권역 여부 필드
+  const landMetropolitanArea = document.getElementById('landMetropolitanArea'); // 대도시권역 여부 드롭다운
+
+  // 토지 옵션 상태 확인 함수
+  function checkLandOptions() {
+    // 기본적으로 과밀억제권역 및 대도시권역 필드 숨김
+    landCrowdedAreaField.style.display = 'none';
+    landMetropolitanAreaField.style.display = 'none';
+
+    // 토지 용도가 "농지외토지"이고, 취득 유형이 영리법인 또는 비영리법인일 경우
+    if (landType.value === 'nonFarmland' &&
+        (landAcquisitionType.value === 'forProfit' || landAcquisitionType.value === 'nonProfit')) {
+      landCrowdedAreaField.style.display = 'block';
+    }
+  }
+
+  // 토지 용도 변경 시 체크
+  landType.addEventListener('change', () => {
+    checkLandOptions();
+  });
+
+  // 토지 취득 유형 변경 시 체크
+  landAcquisitionType.addEventListener('change', () => {
+    checkLandOptions();
+  });
+
+  // 과밀억제권역 여부 선택 시, "예"이면 대도시권역 여부 필드 표시
+  landCrowdedArea.addEventListener('change', () => {
+    if (landCrowdedArea.value === 'yes') {
+      landMetropolitanAreaField.style.display = 'block';
+    } else {
+      landMetropolitanAreaField.style.display = 'none';
+    }
+  });
+
+  // 대도시권역 여부 선택 시, "아니오(중과세 대상이 아님)" 선택하면 안내 메시지 표시
+  landMetropolitanArea.addEventListener('change', () => {
+    if (landMetropolitanArea.value === 'notSubject') {
+      alert(
+        "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
+        "법인이 과밀억제권역 내에서 설립된 지 5년 미만\n" +
+        "과밀억제권역 내에서 부동산 취득\n" +
+        "중과세에서 제외되는 업종(신축업, 임대업)이 아닌 경우\n" +
+        "위의 열거한 내용 중 하나라도 충족되지 아니하는 경우입니다."
+      );
+    }
+  });
+
+  // 초기 상태 반영 (토지 관련 추가 필드)
+  landType.dispatchEvent(new Event('change'));
+  landAcquisitionType.dispatchEvent(new Event('change'));
+  landCrowdedArea.dispatchEvent(new Event('change'));
+});
+
   // [3] 건축물 영역에서 추가 드롭다운 처리
   // - 건축물 영역 내 취득 유형 드롭다운에서 영리법인 선택 시 과밀억제권역 여부 드롭다운 표시
   // - 과밀억제권역 여부 드롭다운에서 "아니오" 선택 시 대도시 여부 드롭다운 표시
