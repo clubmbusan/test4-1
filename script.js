@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ====================================================
 // [B] 건축물 부분 - 비거주용건축물 선택 시, 법인일 때만 추가 드롭다운 표시
 // ====================================================
- document.addEventListener('DOMContentLoaded', () => {
   const buildingType = document.getElementById('buildingType'); // 건축물 용도 선택
   const buildingAcquisitionType = document.getElementById('buildingAcquisitionType'); // 취득 유형 (자연인, 영리법인, 비영리법인)
   const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드
@@ -129,27 +128,22 @@ document.addEventListener('DOMContentLoaded', () => {
   metropolitanAreaField.style.display = 'none';
 
   function checkBuildingOptions() {
-    // 항상 추가 필드를 숨김
+    // 먼저 모든 추가 필드를 숨김
     crowdedAreaField.style.display = 'none';
     metropolitanAreaField.style.display = 'none';
 
-    const bt = buildingType.value;      // 건축물용도 값
+    const bt = buildingType.value;       // 건축물용도 값
     const bat = buildingAcquisitionType.value; // 취득 유형 값
 
-    // (수정1) 사치성 재산은 추가 드롭다운을 아예 표시하지 않음.
+    // 사치성 재산은 추가 드롭다운을 아예 표시하지 않음.
     if (bt === 'luxuryProperty') {
       return;
     }
-
-    // (수정2) 주거용 오피스텔, 신축건물, 비거주용 건축물은 취득 유형이 법인(영리법인 또는 비영리법인)일 때만 추가 드롭다운 표시
+    
+    // 주거용 오피스텔, 신축건물, 비거주용건축물 모두
+    // 취득 유형이 법인(영리법인 또는 비영리법인)일 때만 추가 드롭다운을 표시
     if (bat === 'forProfit' || bat === 'nonProfit') {
-      if (
-        bt === 'residentialOffice' || // 주거용 오피스텔
-        bt === 'newBuilding'       || // 신축건물
-        bt === 'commercialBuilding'   // 비거주용 건축물
-      ) {
-        crowdedAreaField.style.display = 'block';
-      }
+      crowdedAreaField.style.display = 'block';
     }
   }
 
@@ -157,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
 
   crowdedArea.addEventListener('change', () => {
+    // 과밀억제권역에서 "예" 선택 시 대도시 여부 드롭다운 표시, 그 외는 숨김 처리
     if (crowdedArea.value === 'yes') {
       metropolitanAreaField.style.display = 'block';
     } else {
@@ -179,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 초기 상태 반영
   buildingType.dispatchEvent(new Event('change'));
   buildingAcquisitionType.dispatchEvent(new Event('change'));
-});
   
   // [3] 부동산 금액 입력 시 콤마 자동
   const realEstateValue = document.getElementById('realEstateValue');
