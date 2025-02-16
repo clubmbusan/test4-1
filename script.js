@@ -642,7 +642,6 @@ confirmOriginalType.addEventListener('click', () => {
   // 모달 닫기
   originalModal.style.display = 'none';
  });
-});  
 
 // 닫기 버튼 클릭 이벤트
 document.getElementById('closeOriginalModal').addEventListener('click', () => {
