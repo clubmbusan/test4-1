@@ -523,7 +523,7 @@ confirmInheritanceType.addEventListener('click', () => {
     appliedTaxRate = "2.8%";
   }
     
-    const acquisitionTax = Math.floor(assetValue * taxRate);
+    const acquisitionTax = Math.floor(assetValue * baseRate);
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
     if (!acquisitionTaxField) {
         console.error('숨겨진 필드 "calculatedAcquisitionTax"를 찾을 수 없습니다.');
