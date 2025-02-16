@@ -577,27 +577,38 @@ originalButton.addEventListener('click', () => {
 
 // 원시취득 모달 확인 버튼 클릭 이벤트 (표준세율: 2.8%)
 confirmOriginalType.addEventListener('click', () => {
-    const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-    if (isNaN(assetValue) || assetValue <= 0) {
-        alert('유효한 금액을 입력하세요.');
-        return;
-    }
-    
-  // 원시취득의 기본세율은 2.8%
+  // 입력 필드에서 부동산 금액을 가져와 숫자로 변환
+  const assetValueStr = document.getElementById('realEstateValue').value.replace(/,/g, '');
+  const assetValue = parseInt(assetValueStr || '0', 10);
+  if (isNaN(assetValue) || assetValue <= 0) {
+    alert('유효한 금액을 입력하세요.');
+    return;
+  }
+  
+  // 부동산 종류를 가져옴
   const selectedType = document.getElementById('realEstateType').value;
-  baseRate = 0.028;
-  appliedTaxRate = "2.8%";
-  // 건축물이고 사치성재산이면 8% 추가 → 10.8%
+  let baseRate = 0.028; // 원시취득 기본세율 2.8%
+  let appliedTaxRate = "2.8%";
+  
+  // 건축물이고 사치성재산이면 추가 8% 적용 → 총 10.8%
   if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
     baseRate += 0.08;
     appliedTaxRate = "10.8%";
-  } 
-    
-    // 전역 변수에 원시취득세와 적용 세율 정보 저장 (최종 결과 출력 시 활용)
-    window.selectedAcquisitionMethod = "원시취득세";
-    window.selectedAppliedTaxRate = "2.8%";
-    
-    originalModal.style.display = 'none';
+  }
+  
+  // 취득세 계산 및 숨겨진 필드에 저장
+  const acquisitionTax = Math.floor(assetValue * baseRate);
+  const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
+  if (acquisitionTaxField) {
+    acquisitionTaxField.value = acquisitionTax;
+  }
+  
+  // 전역 변수 업데이트
+  window.selectedAcquisitionMethod = "원시취득세";
+  window.selectedAppliedTaxRate = appliedTaxRate;
+  
+  // 모달 닫기
+  originalModal.style.display = 'none';
 });
 
 // 닫기 버튼 클릭 이벤트
