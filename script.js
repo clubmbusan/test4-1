@@ -590,7 +590,14 @@ originalButton.addEventListener('click', () => {
         return;
     }
 
-    // 건축물 관련 옵션 추가
+   // 건축물 용도에서 신축건물 또는 사치성재산이어야만 계산이 가능합니다.
+      const buildingTypeValue = document.getElementById('buildingType').value;
+      if (buildingTypeValue !== 'newBuilding' && buildingTypeValue !== 'luxuryProperty') {
+          alert('원시취득은 신축건물 또는 사치성재산에 대해서만 해당됩니다.');
+          return;
+      }
+  
+  // 건축물 관련 옵션 추가
     originalCategory.innerHTML = `
         <option value="residential">주거용</option>
         <option value="nonResidential">비주거용</option>
