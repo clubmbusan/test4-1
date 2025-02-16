@@ -371,11 +371,17 @@ confirmSaleType.addEventListener('click', () => {
   // 3. 건축물 계산
   // =====================
   else if (selectedType === 'building') {
-    // 건축물: 기본 4%
-    acquisitionTax = Math.floor(assetValue * 0.04);
+  // 건축물 계산: 기본 4%에, 사치성재산이면 추가 8% 적용 (총 12%)
+  let baseRate = 0.04;
+  if (document.getElementById('buildingType').value === 'luxuryProperty') {
+    baseRate += 0.08; // 0.04 + 0.08 = 0.12 (12%)
+    appliedTaxRate = "12%";
+  } else {
     appliedTaxRate = "4%";
-    window.selectedAcquisitionMethod = "매매취득세";
   }
+  acquisitionTax = Math.floor(assetValue * baseRate);
+  window.selectedAcquisitionMethod = "매매취득세";
+}
   
   // ---------------------------
   // 계산된 취득세와 적용 세율 정보를 저장
