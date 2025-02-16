@@ -677,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruralTax = Math.floor(acquisitionTax * ruralTaxRate);
     const baseTotalTax = acquisitionTax + educationTax + ruralTax;
     
-    // ---------------------------
+   // ---------------------------
     // 신고일 및 신고 기한에 따른 가산세 계산 (업데이트된 코드)
     // ---------------------------
     const reportDeadlineSelect = document.getElementById('reportDeadline');
@@ -707,10 +707,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let penaltyTax = 0;
     if (reportDateInput) {
       const reportDate = new Date(reportDateInput + 'T00:00:00');
+      // 신고일이 허용 기한보다 늦은 경우에만 가산세 계산, 그렇지 않으면 0
       if (reportDate > allowedDeadline) {
         const lateTime = reportDate.getTime() - allowedDeadline.getTime();
         const lateDays = Math.ceil(lateTime / (24 * 60 * 60 * 1000));
         penaltyTax = Math.floor(acquisitionTax * 0.001 * lateDays); // 연체 일수당 0.1% 가산
+      } else {
+        penaltyTax = 0;
       }
     }
     
