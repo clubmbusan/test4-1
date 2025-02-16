@@ -419,19 +419,19 @@ giftButton.addEventListener('click', () => {
 
 // 증여취득 모달 확인 버튼 클릭 이벤트
 confirmGiftType.addEventListener('click', () => {
-    const giftType = document.getElementById('giftType').value; // 증여 종류
+    const giftType = document.getElementById('giftType').value; // 증여 종류 ('general' 또는 'corporate')
     const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-
+    
     if (isNaN(assetValue) || assetValue <= 0) {
         alert('유효한 금액을 입력하세요.');
         return;
     }
-
+    
     let taxRate = 0;
-    let appliedTaxRate = ""; // 적용된 세율 정보를 문자열로 저장
-
+    let appliedTaxRate = "";
+    const selectedType = document.getElementById('realEstateType').value;
+    
     // 증여 종류에 따른 세율 설정
-    // 자연인 취득: 1000분의 35 (3.5%), 비영리 사업자: 1000분의 28 (2.8%)
     if (giftType === 'general') {
         taxRate = 0.035;
         appliedTaxRate = "3.5%";
@@ -439,9 +439,19 @@ confirmGiftType.addEventListener('click', () => {
         taxRate = 0.028;
         appliedTaxRate = "2.8%";
     }
-
+    
+    // 건축물이고 사치성재산이면 기본세율에 8% 추가
+    if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
+        taxRate += 0.08;
+        if (giftType === 'general') {
+            appliedTaxRate = "11.8%"; // 3.5% + 8% = 11.8%
+        } else if (giftType === 'corporate') {
+            appliedTaxRate = "10.8%"; // 2.8% + 8% = 10.8%
+        }
+    }
+    
     const acquisitionTax = Math.floor(assetValue * taxRate); // 취득세 계산
-
+    
     // 계산된 취득세를 숨겨진 필드에 저장
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
     if (!acquisitionTaxField) {
@@ -449,11 +459,11 @@ confirmGiftType.addEventListener('click', () => {
         return;
     }
     acquisitionTaxField.value = acquisitionTax;
-
+    
     // 전역 변수에 증여 취득세 종류와 적용 세율 저장 (최종 결과 출력 시 활용)
     window.selectedAcquisitionMethod = "증여취득세";
     window.selectedAppliedTaxRate = appliedTaxRate;
-
+    
     // 모달 닫기
     giftModal.style.display = 'none';
 });
