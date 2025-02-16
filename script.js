@@ -499,26 +499,29 @@ confirmInheritanceType.addEventListener('click', () => {
         return;
     }
     
-    let taxRate = 0;
-    let appliedTaxRate = "";
-    // 부동산 종류 확인: 'house', 'land', 'building'
-    const selectedType = document.getElementById('realEstateType').value;
-    
-    if (selectedType === 'land') {
-        // 토지의 경우 토지 용도에 따라 농지이면 2.3%, 그 외는 2.8%
-        const landType = document.getElementById('landType').value;
-        if (landType === 'farmland') {
-            taxRate = 0.023;
-            appliedTaxRate = "2.3%";
-        } else {
-            taxRate = 0.028;
-            appliedTaxRate = "2.8%";
-        }
-    } else {
-        // 주택 및 건축물 등은 기본 2.8%
-        taxRate = 0.028;
-        appliedTaxRate = "2.8%";
+    let baseRate = 0;
+  let appliedTaxRate = "";
+  const selectedType = document.getElementById('realEstateType').value;
+  
+  if (selectedType === 'land') {
+    const landType = document.getElementById('landType').value;
+    // 토지: 농지이면 2.3%, 농지외 토지이면 2.8%
+    baseRate = (landType === 'farmland') ? 0.023 : 0.028;
+    appliedTaxRate = (landType === 'farmland') ? "2.3%" : "2.8%";
+  } else if (selectedType === 'building') {
+    // 건축물의 기본 상속세율은 2.8%
+    baseRate = 0.028;
+    appliedTaxRate = "2.8%";
+    // 사치성재산이면 8% 추가
+    if (document.getElementById('buildingType').value === 'luxuryProperty') {
+      baseRate += 0.08; // 2.8% + 8% = 10.8%
+      appliedTaxRate = "10.8%";
     }
+  } else {
+    // 주택 등 기타 경우 기본 2.8%
+    baseRate = 0.028;
+    appliedTaxRate = "2.8%";
+  }
     
     const acquisitionTax = Math.floor(assetValue * taxRate);
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
