@@ -641,7 +641,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 모달 닫기
     originalModal.style.display = 'none';
   });
-}); // DOMContentLoaded 종료
 
 // 닫기 버튼 클릭 이벤트
 document.getElementById('closeOriginalModal').addEventListener('click', () => {
