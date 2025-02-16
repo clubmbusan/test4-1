@@ -575,6 +575,7 @@ window.addEventListener('click', (e) => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
 // 원시취득 모달 관련 코드 (업데이트된 원시취득 표준세율 및 세율 정보 저장)
 const originalButton = document.getElementById('originalButton');   // 원시취득 버튼
 const originalModal = document.getElementById('originalModal');     // 원시취득 모달
@@ -641,6 +642,7 @@ confirmOriginalType.addEventListener('click', () => {
   // 모달 닫기
   originalModal.style.display = 'none';
  });
+});  
 
 // 닫기 버튼 클릭 이벤트
 document.getElementById('closeOriginalModal').addEventListener('click', () => {
