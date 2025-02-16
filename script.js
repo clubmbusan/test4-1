@@ -197,7 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
- // ===== 신고하기 버튼 토글 이벤트 추가 =====
+ document.addEventListener('DOMContentLoaded', () => {
+  // ===== 신고하기 버튼 토글 이벤트 추가 =====
   document.getElementById('reportToggleButton').addEventListener('click', () => {
     const reportSection = document.getElementById('reportSection');
     if (reportSection.style.display === 'none' || reportSection.style.display === '') {
@@ -205,6 +206,29 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       reportSection.style.display = 'none';
     }
+  });
+
+  // 신고 제출 버튼 이벤트 처리 (신고 입력값 저장 및 신고 영역 숨김)
+  document.getElementById('submitReportButton').addEventListener('click', () => {
+    const reportDate = document.getElementById('reportDate').value;
+    const reportDeadline = document.getElementById('reportDeadline').value;
+    const extendedReportDate = document.getElementById('extendedReportDate').value; // 선택 사항
+
+    if (!reportDate || !reportDeadline) {
+      alert('신고일과 신고 기한을 모두 입력해주세요.');
+      return;
+    }
+
+    // 신고 정보 저장 (전역 변수 등에 저장하여 계산 시 활용 가능)
+    window.reportDate = reportDate;
+    window.reportDeadline = reportDeadline;
+    window.extendedReportDate = extendedReportDate;
+
+    // 신고 영역 숨김 처리
+    document.getElementById('reportSection').style.display = 'none';
+  });
+
+  // 그 외 다른 이벤트 리스너들...
 });
 
 // -------------------------
