@@ -499,7 +499,7 @@ confirmInheritanceType.addEventListener('click', () => {
         return;
     }
     
-    let baseRate = 0;
+  let baseRate = 0;
   let appliedTaxRate = "";
   const selectedType = document.getElementById('realEstateType').value;
   
@@ -583,13 +583,14 @@ confirmOriginalType.addEventListener('click', () => {
         return;
     }
     
-    // 원시취득 표준세율 적용 (2.8%)
-    const acquisitionTax = Math.floor(assetValue * 0.028);
-    
-    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
-    if (acquisitionTaxField) {
-        acquisitionTaxField.value = acquisitionTax;
-    }
+    // 원시취득의 기본세율은 2.8%
+  baseRate = 0.028;
+  appliedTaxRate = "2.8%";
+  // 건축물이고 사치성재산이면 8% 추가 → 10.8%
+  if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
+    baseRate += 0.08;
+    appliedTaxRate = "10.8%";
+  } 
     
     // 전역 변수에 원시취득세와 적용 세율 정보 저장 (최종 결과 출력 시 활용)
     window.selectedAcquisitionMethod = "원시취득세";
