@@ -583,7 +583,8 @@ confirmOriginalType.addEventListener('click', () => {
         return;
     }
     
-    // 원시취득의 기본세율은 2.8%
+  // 원시취득의 기본세율은 2.8%
+  const selectedType = document.getElementById('realEstateType').value;
   baseRate = 0.028;
   appliedTaxRate = "2.8%";
   // 건축물이고 사치성재산이면 8% 추가 → 10.8%
