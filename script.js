@@ -642,43 +642,39 @@ document.addEventListener('DOMContentLoaded', () => {
     originalModal.style.display = 'none';
   });
 
-// 닫기 버튼 클릭 이벤트
-document.getElementById('closeOriginalModal').addEventListener('click', () => {
+  // 닫기 버튼 클릭 이벤트 (원시취득 모달)
+  document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
-});
+  });
 
-// === 후반부 시작 DOMContentLoaded: HTML DOM 로드 후 실행 ===
-document.addEventListener('DOMContentLoaded', () => {
-    // === 모달의 "확인" 버튼: 취득세 계산 및 저장 ===
-    document.getElementById('confirmGiftType').addEventListener('click', () => {
-        const giftType = document.getElementById('giftType').value; // 증여 종류 선택
-        const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10); // 부동산 금액 입력
+  // 증여모달 관련 이벤트 처리 (이전 수정 부분 그대로)
+  document.getElementById('confirmGiftType').addEventListener('click', () => {
+    const giftType = document.getElementById('giftType').value; // 증여 종류 선택
+    const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10); // 부동산 금액 입력
 
-        let taxRate = 0;
+    let taxRate = 0;
 
-        // 증여 종류에 따른 세율 설정
-        if (giftType === 'general') {
-            taxRate = 0.035; // 일반 증여 세율
-        } else if (giftType === 'corporate') {
-            taxRate = 0.04; // 법인 증여 세율
-        }
+    // 증여 종류에 따른 세율 설정
+    if (giftType === 'general') {
+      taxRate = 0.035; // 일반 증여 세율
+    } else if (giftType === 'corporate') {
+      taxRate = 0.04; // 법인 증여 세율
+    }
 
-        // 취득세 계산
-        const acquisitionTax = Math.floor(assetValue * taxRate);
+    // 취득세 계산
+    const acquisitionTax = Math.floor(assetValue * taxRate);
 
-        // 계산된 취득세를 숨겨진 필드에 저장
-        const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
-        if (!acquisitionTaxField) {
-            console.error('숨겨진 필드 "calculatedAcquisitionTax"가 HTML에서 찾을 수 없습니다.');
-            return;
-        }
-        acquisitionTaxField.value = acquisitionTax;
+    // 계산된 취득세를 숨겨진 필드에 저장
+    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
+    if (!acquisitionTaxField) {
+      console.error('숨겨진 필드 "calculatedAcquisitionTax"가 HTML에서 찾을 수 없습니다.');
+      return;
+    }
+    acquisitionTaxField.value = acquisitionTax;
 
-        // 모달 닫기
-        document.getElementById('giftModal').style.display = 'none';
-    });
-
- document.addEventListener('DOMContentLoaded', () => {
+    // 모달 닫기 (증여취득 모달)
+    document.getElementById('giftModal').style.display = 'none';
+  });
 
   // 월 단위로 날짜를 더하는 함수
   function addMonths(date, months) {
@@ -691,21 +687,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return d;
   }
 
-  // === 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력) ===
+  // 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력)
   document.getElementById('calculateButton').addEventListener('click', () => {
     // ---------------------------
     // 숨겨진 필드에서 취득세 불러오기 및 검증
     // ---------------------------
     const acquisitionTaxElement = document.getElementById('calculatedAcquisitionTax');
     if (!acquisitionTaxElement || acquisitionTaxElement.value === '') {
-        alert('모달에서 취득세를 계산해주세요.');
-        return;
+      alert('모달에서 취득세를 계산해주세요.');
+      return;
     }
     
     const acquisitionTax = parseInt(acquisitionTaxElement.value, 10);
     if (isNaN(acquisitionTax) || acquisitionTax <= 0) {
-        alert('유효한 취득세 값이 없습니다.');
-        return;
+      alert('유효한 취득세 값이 없습니다.');
+      return;
     }
     
     // ---------------------------
@@ -727,31 +723,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseAcquisitionDate = new Date('2024-01-01T00:00:00');
     
     if (reportDeadlineSelect.value === '60days') {
-        // 매매(원시) 취득: 60일 후
-        allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+      // 매매(원시) 취득: 60일 후
+      allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
     } else if (reportDeadlineSelect.value === '3months') {
-        // 증여 취득: 3개월 후
-        allowedDeadline = addMonths(baseAcquisitionDate, 3);
+      // 증여 취득: 3개월 후
+      allowedDeadline = addMonths(baseAcquisitionDate, 3);
     } else if (reportDeadlineSelect.value === '6months') {
-        // 상속 취득: 6개월 후
-        allowedDeadline = addMonths(baseAcquisitionDate, 6);
+      // 상속 취득: 6개월 후
+      allowedDeadline = addMonths(baseAcquisitionDate, 6);
     } else if (reportDeadlineSelect.value === '9months') {
-        // 국외 상속 취득: 9개월 후
-        allowedDeadline = addMonths(baseAcquisitionDate, 9);
+      // 국외 상속 취득: 9개월 후
+      allowedDeadline = addMonths(baseAcquisitionDate, 9);
     } else {
-        // 기본값: 60일 후
-        allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+      // 기본값: 60일 후
+      allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
     }
     
     const reportDateInput = document.getElementById('reportDate').value;
     let penaltyTax = 0;
     if (reportDateInput) {
-        const reportDate = new Date(reportDateInput + 'T00:00:00');
-        if (reportDate > allowedDeadline) {
-            const lateTime = reportDate.getTime() - allowedDeadline.getTime();
-            const lateDays = Math.ceil(lateTime / (24 * 60 * 60 * 1000));
-            penaltyTax = Math.floor(acquisitionTax * 0.001 * lateDays); // 연체 일수당 0.1% 가산
-        }
+      const reportDate = new Date(reportDateInput + 'T00:00:00');
+      if (reportDate > allowedDeadline) {
+        const lateTime = reportDate.getTime() - allowedDeadline.getTime();
+        const lateDays = Math.ceil(lateTime / (24 * 60 * 60 * 1000));
+        penaltyTax = Math.floor(acquisitionTax * 0.001 * lateDays); // 연체 일수당 0.1% 가산
+      }
     }
     
     const totalTax = baseTotalTax + penaltyTax;
@@ -772,6 +768,5 @@ document.addEventListener('DOMContentLoaded', () => {
       <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
     `;
   });
-}); 
-
+});
   
