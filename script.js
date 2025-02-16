@@ -591,13 +591,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 건축물 용도에서 신축건물 또는 사치성재산이어야만 계산이 가능합니다.
-    const buildingTypeValue = document.getElementById('buildingType').value;
-    if (buildingTypeValue !== 'newBuilding' && buildingTypeValue !== 'luxuryProperty') {
-      alert('원시취득은 신축건물 또는 사치성재산에 대해서만 해당됩니다.');
-      return;
-    }
-
     // 건축물 관련 옵션 추가
     originalCategory.innerHTML = `
       <option value="residential">주거용</option>
@@ -646,36 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
   });
-
-  // 증여모달 관련 이벤트 처리 (이전 수정 부분 그대로)
-  document.getElementById('confirmGiftType').addEventListener('click', () => {
-    const giftType = document.getElementById('giftType').value; // 증여 종류 선택
-    const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10); // 부동산 금액 입력
-
-    let taxRate = 0;
-
-    // 증여 종류에 따른 세율 설정
-    if (giftType === 'general') {
-      taxRate = 0.035; // 일반 증여 세율
-    } else if (giftType === 'corporate') {
-      taxRate = 0.04; // 법인 증여 세율
-    }
-
-    // 취득세 계산
-    const acquisitionTax = Math.floor(assetValue * taxRate);
-
-    // 계산된 취득세를 숨겨진 필드에 저장
-    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
-    if (!acquisitionTaxField) {
-      console.error('숨겨진 필드 "calculatedAcquisitionTax"가 HTML에서 찾을 수 없습니다.');
-      return;
-    }
-    acquisitionTaxField.value = acquisitionTax;
-
-    // 모달 닫기 (증여취득 모달)
-    document.getElementById('giftModal').style.display = 'none';
-  });
-
+ 
   // 월 단위로 날짜를 더하는 함수
   function addMonths(date, months) {
     const d = new Date(date);
