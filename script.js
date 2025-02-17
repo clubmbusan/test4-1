@@ -785,7 +785,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   const resultDiv = document.getElementById('result');
   resultDiv.innerHTML = `
     <h3>계산 결과</h3>
-    <p>${acquisitionMethod}: ${acquisitionTax.toLocaleString()} 원 (적용 세율: ${appliedTaxRate})</p>
+    <p>${window.selectedAcquisitionMethod || "취득세"}: ${acquisitionTax.toLocaleString()} 원 (적용 세율: ${window.selectedAppliedTaxRate || "0%"})</p>
     <p>지방교육세: ${educationTax.toLocaleString()} 원</p>
     <p>농어촌특별세: ${ruralTax.toLocaleString()} 원</p>
     <hr>
