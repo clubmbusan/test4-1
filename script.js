@@ -678,39 +678,45 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   const baseTotalTax = acquisitionTax + educationTax + ruralTax;
   
   // ---------------------------
-  // 신고일 및 신고 기한에 따른 가산세 계산 (업데이트된 코드)
+  // 취득일 및 신고일 입력값을 사용하여 가산세 계산
   // ---------------------------
+  // 취득일 입력 필드 (사용자 입력값, 예: id="acquisitionDate")
+  const acquisitionDateInput = document.getElementById('acquisitionDate').value;
+  if (!acquisitionDateInput) {
+    alert('취득일을 입력해주세요.');
+    return;
+  }
+  const baseAcquisitionDate = new Date(acquisitionDateInput); // 사용자 입력 취득일
+  
+  // 신고기한 선택 (예: '60days', '3months', '6months', '9months')
   const reportDeadlineSelect = document.getElementById('reportDeadline');
   let allowedDeadline;
-  
-  // 취득일은 예시로 '2024-01-01T00:00:00'로 고정 (실제 사용 시 입력값을 사용)
-  const baseAcquisitionDate = new Date('2024-01-01T00:00:00');
-  
   if (reportDeadlineSelect.value === '60days') {
-    // 매매(원시) 취득: 60일 후
+    // 매매(원시) 취득: 취득일 기준 60일 후
     allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
   } else if (reportDeadlineSelect.value === '3months') {
-    // 증여 취득: 3개월 후
+    // 증여 취득: 취득일 기준 3개월 후
     allowedDeadline = addMonths(baseAcquisitionDate, 3);
   } else if (reportDeadlineSelect.value === '6months') {
-    // 상속 취득: 6개월 후
+    // 상속 취득: 취득일 기준 6개월 후
     allowedDeadline = addMonths(baseAcquisitionDate, 6);
   } else if (reportDeadlineSelect.value === '9months') {
-    // 국외 상속 취득: 9개월 후
+    // 국외 상속 취득: 취득일 기준 9개월 후
     allowedDeadline = addMonths(baseAcquisitionDate, 9);
   } else {
     // 기본값: 60일 후
     allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
   }
   
-  // 신고일 입력값을 단순히 new Date(reportDateInput)으로 파싱 (input type="date"의 경우 YYYY-MM-DD 형식)
+  // 신고일 입력 필드 (사용자 입력값, id="reportDate")
   const reportDateInput = document.getElementById('reportDate').value;
   let basePenalty = 0, delayPenalty = 0, totalPenalty = 0, finalPenalty = 0;
   let discountRateText = "없음";
   let lateDays = 0;
   
   if (reportDateInput) {
-    const reportDate = new Date(reportDateInput); // 'T00:00:00' 없이 파싱
+    // input type="date"의 경우 단순히 new Date(reportDateInput) 사용
+    const reportDate = new Date(reportDateInput);
     if (reportDate > allowedDeadline) {
       const diffTime = reportDate.getTime() - allowedDeadline.getTime();
       lateDays = Math.ceil(diffTime / (24 * 60 * 60 * 1000));
@@ -733,7 +739,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
         discountFactor = 0.8;  // 3개월 초과 ~ 6개월 이내: 20% 감경
         discountRateText = "20% 감경";
       } else {
-        discountFactor = 1.0;  // 그 외: 감경 없음
+        discountFactor = 1.0;
         discountRateText = "감경 없음";
       }
       finalPenalty = Math.floor(totalPenalty * discountFactor);
@@ -749,7 +755,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   const totalTax = baseTotalTax + finalPenalty;
   
   // ---------------------------
-  // 결과 출력: 취득세 종류, 적용 세율, 무신고 가산세, 지연 가산세, 감경율, 최종 가산세, 총 세금 출력
+  // 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 (무신고, 지연, 감경율, 최종 가산세, 경과일) 포함
   // ---------------------------
   const acquisitionMethod = window.selectedAcquisitionMethod || "취득세";
   const appliedTaxRate = window.selectedAppliedTaxRate || "0%";
@@ -761,6 +767,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
       <p>지연 가산세: ${delayPenalty.toLocaleString()} 원</p>
       <p>감경율: ${discountRateText}</p>
       <p>최종 가산세: ${finalPenalty.toLocaleString()} 원</p>
+      <p>신고기한 초과 경과일: ${lateDays} 일</p>
     `;
   } else {
     penaltyHTML = `<p>가산세: 없음</p>`;
