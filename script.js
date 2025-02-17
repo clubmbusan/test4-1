@@ -653,15 +653,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력)
 document.getElementById('calculateButton').addEventListener('click', () => {
-  // 취득일 입력값을 DOM에서 읽어옴 (모든 모달의 취득일 입력 필드 id가 "acquisitionDate"로 통일됨)
-  const acquisitionDateInput = document.getElementById('acquisitionDate').value;
+  // 취득유형에 따라 올바른 취득일 입력 필드에서 값을 읽어옵니다.
+  const acquisitionMethod = window.selectedAcquisitionMethod || "";
+  let acquisitionDateInput = "";
+  
+  if (acquisitionMethod === "매매취득세") {
+    acquisitionDateInput = document.getElementById('acquisitionDate').value;
+  } else if (acquisitionMethod === "증여취득세") {
+    acquisitionDateInput = document.getElementById('giftAcquisitionDate').value;
+  } else if (acquisitionMethod === "상속취득세") {
+    acquisitionDateInput = document.getElementById('inheritanceAcquisitionDate').value;
+  } else if (acquisitionMethod === "원시취득세") {
+    acquisitionDateInput = document.getElementById('originalAcquisitionDate').value;
+  }
+  
   if (!acquisitionDateInput) {
     alert('취득일을 입력해주십시오.');
     return;
   }
+  
   const baseAcquisitionDate = new Date(acquisitionDateInput);
   console.log("취득일:", baseAcquisitionDate);
-
+  
   // ---------------------------
   // 숨겨진 필드에서 취득세 불러오기 및 검증
   // ---------------------------
@@ -676,7 +689,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     alert('유효한 취득세 값이 없습니다.');
     return;
   }
-  
+   
   // ---------------------------
   // 부가세 계산 (예: 지방교육세, 농어촌특별세)
   // ---------------------------
