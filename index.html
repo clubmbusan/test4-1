@@ -163,23 +163,26 @@
       <button type="button" class="action-btn" id="inheritanceButton">상속취득</button>
       <button type="button" class="action-btn" id="originalButton">원시취득</button>
       
-      <!-- 매매취득 모달 -->
-<div id="saleModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3>매매 취득 세부사항</h3>
+   <!-- 유상취득 모달 -->
+   <div id="saleModal" class="modal" style="display: none;">
+     <div class="modal-content">
+       <h3>유상취득 세부사항</h3>
     
-    <label for="saleType">매매 종류:</label>
-    <select id="saleType">
-      <option value="general">일반 매매</option>
-      <option value="special_50">특수 매매 (50% 감면)</option>
-      <option value="special_100">특수 매매 (100% 감면)</option>
-    </select>
+       <label for="saleType">유상취득 종류:</label>
+       <select id="saleType">
+         <option value="매매">매매</option>
+         <option value="교환">교환</option>
+         <option value="현물출자">현물출자</option>
+         <option value="연부취득">연부취득</option>
+         <option value="대물변제">대물변제</option>
+         <option value="부담부증여">부담부증여 시 채무인수액</option>
+       </select>
     
-    <!-- 매매 취득일 입력 필드 추가 -->
+    <!-- 유상취득일 입력 필드 추가 -->
     <div id="acquisitionDateContainer" style="margin-top: 20px;">
-      <label for="acquisitionDate">매매 취득일:</label>
+      <label for="acquisitionDate">유상취득일:</label>
       <input type="date" id="acquisitionDate" placeholder="연도-월-일">
-      <p>매매 취득일은 계약 체결일을 기준으로 입력하세요.</p>
+      <p>유상취득일은 계약 체결일을 기준으로 입력하세요.</p>
     </div>
     
     <button type="button" class="confirm-btn" id="confirmSaleType">확인</button>
