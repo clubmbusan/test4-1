@@ -769,9 +769,6 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   // ---------------------------
   // 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 출력
   // ---------------------------
-  const acquisitionMethod = window.selectedAcquisitionMethod || "취득세";
-  const appliedTaxRate = window.selectedAppliedTaxRate || "0%";
-  
   let penaltyHTML = "";
   if (finalPenalty > 0) {
     penaltyHTML = `
