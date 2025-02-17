@@ -653,22 +653,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력)
 document.getElementById('calculateButton').addEventListener('click', () => {
-  // 취득일이 전역 변수에 저장되어 있지 않으면 안내 메시지 표시 후 종료
-  if (!window.acquisitionDate) {
+  // 취득일 입력값을 DOM에서 읽어옴 (모든 모달의 취득일 입력 필드 id가 "acquisitionDate"로 통일됨)
+  const acquisitionDateInput = document.getElementById('acquisitionDate').value;
+  if (!acquisitionDateInput) {
     alert('취득일을 입력해주십시오.');
     return;
   }
-  // ---------------------------
-  // 취득일은 모달에서 입력 후 전역변수(window.acquisitionDate)에 저장되어 있어야 함.
-  // ---------------------------
-  const acquisitionDateInput = window.acquisitionDate;
-  if (!acquisitionDateInput) {
-    alert('취득일이 입력되지 않았습니다. 취득일 모달에서 취득일을 입력해주세요.');
-    return;
-  }
   const baseAcquisitionDate = new Date(acquisitionDateInput);
-
-  // 디버깅용: 취득일 출력
   console.log("취득일:", baseAcquisitionDate);
 
   // ---------------------------
@@ -679,12 +670,13 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     alert('모달에서 취득세를 계산해주세요.');
     return;
   }
+  
   const acquisitionTax = parseInt(acquisitionTaxElement.value, 10);
   if (isNaN(acquisitionTax) || acquisitionTax <= 0) {
     alert('유효한 취득세 값이 없습니다.');
     return;
   }
-
+  
   // ---------------------------
   // 부가세 계산 (예: 지방교육세, 농어촌특별세)
   // ---------------------------
@@ -693,39 +685,36 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   const educationTax = Math.floor(acquisitionTax * educationTaxRate);
   const ruralTax = Math.floor(acquisitionTax * ruralTaxRate);
   const baseTotalTax = acquisitionTax + educationTax + ruralTax;
-
+  
   // ---------------------------
   // 신고일 및 신고 기한에 따른 가산세 계산 (업데이트된 코드)
   // ---------------------------
   const reportDeadlineSelect = document.getElementById('reportDeadline');
   let allowedDeadline;
-  // 신고기한은 취득일을 기준으로 계산 (예: 60days, 3months, 등)
+  
+  // 취득일을 기준으로 신고기한을 계산 (예: 60일, 3개월 등)
   if (reportDeadlineSelect.value === '60days') {
-     // 매매(원시) 취득: 취득일 기준 60일 후
     allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
   } else if (reportDeadlineSelect.value === '3months') {
-    // 증여 취득: 취득일 기준 3개월 후
-    allowedDeadline = addMonths(baseAcquisitionDate, 3);    
+    allowedDeadline = addMonths(baseAcquisitionDate, 3);
   } else if (reportDeadlineSelect.value === '6months') {
-    // 상속 취득: 취득일 기준 6개월 후
     allowedDeadline = addMonths(baseAcquisitionDate, 6);
   } else if (reportDeadlineSelect.value === '9months') {
-     // 국외 상속 취득: 취득일 기준 9개월 후
     allowedDeadline = addMonths(baseAcquisitionDate, 9);
   } else {
-    // 기본값: 60일 후
     allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
   }
   console.log("허용 신고 기한:", allowedDeadline);
   
-  // 신고일 입력 필드
+  // 신고일 입력 필드 (input type="date"인 경우)
   const reportDateInput = document.getElementById('reportDate').value;
   let basePenalty = 0, delayPenalty = 0, totalPenalty = 0, finalPenalty = 0;
   let discountRateText = "없음";
   let lateDays = 0;
-
+  
   if (reportDateInput) {
     const reportDate = new Date(reportDateInput);
+    console.log("신고일:", reportDate);
     if (reportDate > allowedDeadline) {
       const diffTime = reportDate.getTime() - allowedDeadline.getTime();
       lateDays = Math.ceil(diffTime / (24 * 60 * 60 * 1000));
@@ -736,7 +725,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
       // 지연 가산세: 초과 일수 × 0.00022 × 취득세
       delayPenalty = acquisitionTax * (lateDays * 0.00022);
       totalPenalty = basePenalty + delayPenalty;
-
+      
       // 감경율 적용
       let discountFactor = 1.0;
       if (lateDays <= 30) {
@@ -761,15 +750,15 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     finalPenalty = 0;
     discountRateText = "없음";
   }
-
+  
   const totalTax = baseTotalTax + finalPenalty;
-
+  
   // ---------------------------
-  // 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 (무신고, 지연, 감경율, 최종 가산세, 경과일) 포함
+  // 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 출력
   // ---------------------------
   const acquisitionMethod = window.selectedAcquisitionMethod || "취득세";
   const appliedTaxRate = window.selectedAppliedTaxRate || "0%";
-
+  
   let penaltyHTML = "";
   if (finalPenalty > 0) {
     penaltyHTML = `
@@ -782,7 +771,7 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   } else {
     penaltyHTML = `<p>가산세: 없음</p>`;
   }
-
+  
   const resultDiv = document.getElementById('result');
   resultDiv.innerHTML = `
     <h3>계산 결과</h3>
