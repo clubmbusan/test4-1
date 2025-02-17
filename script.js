@@ -668,6 +668,9 @@ document.getElementById('calculateButton').addEventListener('click', () => {
   }
   const baseAcquisitionDate = new Date(acquisitionDateInput);
 
+  // 디버깅용: 취득일 출력
+  console.log("취득일:", baseAcquisitionDate);
+
   // ---------------------------
   // 숨겨진 필드에서 취득세 불러오기 및 검증
   // ---------------------------
@@ -713,7 +716,8 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     // 기본값: 60일 후
     allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
   }
-
+  console.log("허용 신고 기한:", allowedDeadline);
+  
   // 신고일 입력 필드
   const reportDateInput = document.getElementById('reportDate').value;
   let basePenalty = 0, delayPenalty = 0, totalPenalty = 0, finalPenalty = 0;
@@ -725,7 +729,8 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     if (reportDate > allowedDeadline) {
       const diffTime = reportDate.getTime() - allowedDeadline.getTime();
       lateDays = Math.ceil(diffTime / (24 * 60 * 60 * 1000));
-
+      console.log("초과일수:", lateDays);
+      
       // 무신고 가산세: 취득세의 20%
       basePenalty = acquisitionTax * 0.2;
       // 지연 가산세: 초과 일수 × 0.00022 × 취득세
