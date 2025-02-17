@@ -651,8 +651,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return d;
   }
 
-  // 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력)
- document.getElementById('calculateButton').addEventListener('click', () => {
+// 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력)
+document.getElementById('calculateButton').addEventListener('click', () => {
   // ---------------------------
   // 숨겨진 필드에서 취득세 불러오기 및 검증
   // ---------------------------
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const reportDeadlineSelect = document.getElementById('reportDeadline');
   let allowedDeadline;
   
-  // 취득일은 예시로 '2024-01-01T00:00:00'로 고정 (실제 사용 시 입력값 사용 가능)
+  // 취득일은 예시로 '2024-01-01T00:00:00'로 고정 (실제 사용 시 입력값을 사용)
   const baseAcquisitionDate = new Date('2024-01-01T00:00:00');
   
   if (reportDeadlineSelect.value === '60days') {
@@ -703,15 +703,15 @@ document.addEventListener('DOMContentLoaded', () => {
     allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
   }
   
+  // 신고일 입력값을 단순히 new Date(reportDateInput)으로 파싱 (input type="date"의 경우 YYYY-MM-DD 형식)
   const reportDateInput = document.getElementById('reportDate').value;
   let basePenalty = 0, delayPenalty = 0, totalPenalty = 0, finalPenalty = 0;
   let discountRateText = "없음";
   let lateDays = 0;
   
   if (reportDateInput) {
-    const reportDate = new Date(reportDateInput + 'T00:00:00');
+    const reportDate = new Date(reportDateInput); // 'T00:00:00' 없이 파싱
     if (reportDate > allowedDeadline) {
-      // 신고기한 초과
       const diffTime = reportDate.getTime() - allowedDeadline.getTime();
       lateDays = Math.ceil(diffTime / (24 * 60 * 60 * 1000));
       
@@ -733,17 +733,15 @@ document.addEventListener('DOMContentLoaded', () => {
         discountFactor = 0.8;  // 3개월 초과 ~ 6개월 이내: 20% 감경
         discountRateText = "20% 감경";
       } else {
-        discountFactor = 1.0;
+        discountFactor = 1.0;  // 그 외: 감경 없음
         discountRateText = "감경 없음";
       }
       finalPenalty = Math.floor(totalPenalty * discountFactor);
     } else {
-      // 신고기한 이내: 가산세 없음
       finalPenalty = 0;
       discountRateText = "없음";
     }
   } else {
-    // 신고일이 입력되지 않은 경우, 가산세는 0으로 처리
     finalPenalty = 0;
     discountRateText = "없음";
   }
@@ -756,7 +754,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const acquisitionMethod = window.selectedAcquisitionMethod || "취득세";
   const appliedTaxRate = window.selectedAppliedTaxRate || "0%";
   
-  // 가산세 출력 부분: 신고일이 입력되어 최종 가산세가 0보다 클 때만 세부 내역 출력
   let penaltyHTML = "";
   if (finalPenalty > 0) {
     penaltyHTML = `
