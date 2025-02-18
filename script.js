@@ -679,15 +679,14 @@ document.getElementById('calculateButton').addEventListener('click', () => {
     return;
   }
    
-  // ---------------------------
-  // 부가세 계산 (예: 지방교육세, 농어촌특별세)
-  // ---------------------------
-  const educationTaxRate = 0.1; // 지방교육세율 (10%)
-  const ruralTaxRate = 0.2;     // 농어촌특별세율 (20%)
-  const educationTax = Math.floor(acquisitionTax * educationTaxRate);
-  const ruralTax = Math.floor(acquisitionTax * ruralTaxRate);
-  const baseTotalTax = acquisitionTax + educationTax + ruralTax;
-  
+// ---------------------------
+// 부가세 계산 (예: 지방교육세, 농어촌특별세) - 수정된 로직
+// ---------------------------
+let standardRate = 0.04; // 예를 들어, 표준세율이 4%로 가정
+const computedEducationTax = Math.floor(assetValue * (standardRate - 0.02) * 0.20); // (표준세율 - 2%)의 20%
+const computedRuralTax = Math.floor(assetValue * 0.02 * 0.10); // 과표의 2%의 10%
+const baseTotalTax = acquisitionTax + computedEducationTax + computedRuralTax;
+ 
   // ---------------------------
   // 신고일 및 신고 기한에 따른 가산세 계산 (업데이트된 코드)
   // ---------------------------
