@@ -58,21 +58,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================= 
   const landType = document.getElementById('landType'); // 농지 / 농지외토지 선택
   const landAcquisitionType = document.getElementById('landAcquisitionType'); // 자연인, 영리법인, 비영리법인 선택
-  const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드
-  const crowdedArea = document.getElementById('crowdedArea'); // 과밀억제권역 여부 드롭다운
+  const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 필드
+  const landCrowdedArea = document.getElementById('landCrowdedArea'); // 과밀억제권역 여부 드롭다운
   const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드
   const metropolitanArea = document.getElementById('metropolitanArea'); // 대도시권역 여부 드롭다운
 
   // 토지 옵션 상태 확인 함수
   function checkLandOptions() {
     // 기본적으로 과밀억제권역 및 대도시권역 필드 숨김
-    crowdedAreaField.style.display = 'none';
-    metropolitanAreaField.style.display = 'none';
+    landCrowdedAreaField.style.display = 'none';
+    landMetropolitanAreaField.style.display = 'none';
 
     // 토지 용도가 "농지외토지"이고, 취득 유형이 영리법인 또는 비영리법인일 경우
     if (landType.value === 'nonFarmland' &&
         (landAcquisitionType.value === 'forProfit' || landAcquisitionType.value === 'nonProfit')) {
-        crowdedAreaField.style.display = 'block';
+        landCrowdedAreaField.style.display = 'block';
     }
   }
 
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 과밀억제권역 여부 선택 시, "예"이면 대도시권역 여부 필드 표시
   crowdedArea.addEventListener('change', () => {
-    if (crowdedArea.value === 'yes') {
+    if (landCrowdedArea.value === 'yes') {
       metropolitanAreaField.style.display = 'block';
     } else {
       metropolitanAreaField.style.display = 'none';
@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 대도시권역 여부 선택 시, "아니오(중과세 대상이 아님)" 선택하면 안내 메시지 표시
-  metropolitanArea.addEventListener('change', () => {
-    if (metropolitanArea.value === 'notSubject') {
+  landMetropolitanArea.addEventListener('change', () => {
+    if (landMetropolitanArea.value === 'notSubject') {
       alert(
         "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
         "법인이 과밀억제권역 내에서 설립된 지 5년 미만\n" +
@@ -622,8 +622,8 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (selectedType === 'land') {
       if (document.getElementById('landType').value === 'nonFarmland') {
         if (
-          document.getElementById('crowdedArea').value === 'yes' &&
-          document.getElementById('metropolitanArea').value === 'yes'
+          document.getElementById('landCrowdedArea').value === 'yes' &&
+          document.getElementById('landMetropolitanArea').value === 'yes'
         ) {
           baseRate = applyCongestionMultiplier(baseRate);
         }
@@ -652,14 +652,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // === 공통 함수: 과밀억제권역 및 대도시지역 조건에 따른 중과세 적용 ===
-  function applyCongestionMultiplier(rate) {
-    const crowdedValue = document.getElementById('crowdedArea') ? document.getElementById('crowdedArea').value : null;
-    const metropolitanValue = document.getElementById('metropolitanArea') ? document.getElementById('metropolitanArea').value : null;
-    if (crowdedValue === 'yes' && metropolitanValue === 'yes') {
-      return rate * 3;
-    }
-    return rate;
+  function applyCongestionMultiplier(rate, type) {
+  let crowdedValue, metropolitanValue;
+  if (type === 'land') {
+    crowdedValue = document.getElementById('landCrowdedArea') ? document.getElementById('landCrowdedArea').value : null;
+    metropolitanValue = document.getElementById('landMetropolitanArea') ? document.getElementById('landMetropolitanArea').value : null;
+  } else { // 건축물 및 기타
+    crowdedValue = document.getElementById('crowdedArea') ? document.getElementById('crowdedArea').value : null;
+    metropolitanValue = document.getElementById('metropolitanArea') ? document.getElementById('metropolitanArea').value : null;
   }
+  if (crowdedValue === 'yes' && metropolitanValue === 'yes') {
+    return rate * 3;
+  }
+  return rate;
+}
 
   // === 월 단위로 날짜를 더하는 함수 ===
   function addMonths(date, months) {
