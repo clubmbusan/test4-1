@@ -682,6 +682,8 @@ document.getElementById('calculateButton').addEventListener('click', () => {
 // ---------------------------
 // 부가세 계산 (예: 지방교육세, 농어촌특별세) - 수정된 로직
 // ---------------------------
+// 부동산 금액을 가져옵니다.
+const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);  
 let standardRate = 0.04; // 예를 들어, 표준세율이 4%로 가정
 const computedEducationTax = Math.floor(assetValue * (standardRate - 0.02) * 0.20); // (표준세율 - 2%)의 20%
 const computedRuralTax = Math.floor(assetValue * 0.02 * 0.10); // 과표의 2%의 10%
