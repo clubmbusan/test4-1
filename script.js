@@ -606,7 +606,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
       baseRate += 0.08;
       appliedTaxRate = "10.8%";
-    }
+ 
+    // 공통 중과세 조건 적용 (원시취득, 매매 등 모두 필요하다면 각 모달에서 호출)
+    baseRate = applyCongestionMultiplier(baseRate);
+   }
+    
     // 토지나 주택 등은 추가 검증 없이 기본 2.8%로 계산
     
     // 취득세 계산 및 숨겨진 필드에 저장
