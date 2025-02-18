@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 과밀억제권역 여부 선택 시, "예"이면 대도시권역 여부 필드 표시
-  crowdedArea.addEventListener('change', () => {
+  landCrowdedArea.addEventListener('change', () => {
     if (landCrowdedArea.value === 'yes') {
       landMetropolitanAreaField.style.display = 'block';
     } else {
