@@ -59,80 +59,84 @@
           </select>
         </div>
 
-        <!-- 토지 선택 시 노출 -->
-       <div id="landField" class="hidden">
+      <!-- 토지 선택 시 노출 -->
+      <div id="landField" class="hidden">
         <label for="landType">토지 용도:</label>
         <select id="landType">
-          <option value="farmland">농지 (논,밭,과,목)</option>
+          <option value="farmland">농지 (논, 밭, 과수원, 목장)</option>
           <option value="nonFarmland">농지 외 토지</option>
           <option value="sharedWaterReclamation">공유수면 매립</option>
         </select>
-  
-        <!-- 기존 취득 유형 드롭다운 -->
-        <label for="landAcquisitionType">취득 유형:</label>
-         <select id="landAcquisitionType">
-           <option value="natural">자연인</option>
-           <option value="forProfit">영리법인</option>
-           <option value="nonProfit">비영리법인</option>
-         </select>
-  
-        <!-- 새로 추가: 과밀억제권역 여부 (법인 선택 시 표시) -->
-        <div id="landCrowdedAreaField" style="display: none;">
-          <label for="landCrowdedArea">과밀억제권역 여부:</label>
-          <select id="landCrowdedArea">
-            <option value="">-- 선택 --</option>
-            <option value="yes">예(서울, 인천, 경기 14개 도시)</option>
-            <option value="no">아니오</option>
-          </select>
-        </div>
-  
-        <!-- 새로 추가: 대도시권역 여부 (과밀억제권역에서 예 선택 시 표시) -->
-        <div id="landMetropolitanAreaField" style="display: none;">
-          <label for="landMetropolitanArea">대도시권역 여부:</label>
-          <select id="landMetropolitanArea">
-            <option value="">-- 선택 --</option>
-            <option value="yes">예</option>
-            <option value="techno">아니오(테크노파크지역,유치지역,산업단지,공업지역)</option>
-            <option value="notSubject">아니오(중과세 대상이 아님)</option>
-          </select>
-        </div>
-      </div>
 
-        <!-- 건축물 선택 시 노출 -->
-        <div id="buildingField" class="hidden">
-          <label for="buildingType">건축물 용도:</label>
-          <select id="buildingType">
-            <option value="residentialOffice" selected>주거용 오피스텔</option>
-            <option value="commercialBuilding">비거주용건축물 (상가, 사무실, 공장 등)</option>
-            <option value="luxuryProperty">사치성 재산 (별장, 골프장, 오락장, 고급선박, 고급주택)</option>
-          </select>
+  <!-- 취득 유형 -->
+  <label for="landAcquisitionType">취득 유형:</label>
+  <select id="landAcquisitionType">
+    <option value="natural">자연인</option>
+    <option value="forProfit">영리법인</option>
+    <option value="nonProfit">비영리법인</option>
+  </select>
 
-          <label for="buildingAcquisitionType">취득인:</label>
-          <select id="buildingAcquisitionType">
-            <option value="natural" selected>자연인</option>
-            <option value="forProfit">영리법인</option>
-            <option value="nonProfit">비영리법인</option>
-          </select>
+  <!-- 과밀억제권역 여부 -->
+  <div id="crowdedAreaField" class="hidden">
+    <label for="crowdedArea">과밀억제권역 여부:</label>
+    <select id="crowdedArea">
+      <option value="">-- 선택 --</option>
+      <option value="yes">예(서울, 인천, 경기 14개 도시)</option>
+      <option value="no">아니오</option>
+    </select>
+  </div>
 
-          <div id="crowdedAreaField" class="hidden">
-           <label for="crowdedArea">과밀억제권역 여부:</label>
-            <select id="crowdedArea">
-              <option value="">-- 선택 --</option>
-              <option value="yes">예(서울, 인천, 경기 14개 도시</option>
-              <option value="no">아니오</option>
-            </select>
-          </div>
+  <!-- 대도시 여부 -->
+  <div id="metropolitanAreaField" class="hidden">
+    <label for="metropolitanArea">대도시 여부:</label>
+    <select id="metropolitanArea">
+      <option value="">-- 선택 --</option>
+      <option value="yes">예</option>
+      <option value="techno">아니오(테크노파크지역, 유치지역, 산업단지, 공업지역)</option>
+      <option value="notSubject">아니오(중과세 대상이 아님)</option>
+    </select>
+  </div>
+</div>
 
-          <div id="metropolitanAreaField" class="hidden">
-            <label for="metropolitanArea">대도시 여부:</label>
-            <select id="metropolitanArea">
-              <option value="">-- 선택 --</option>
-              <option value="yes">예</option>
-              <option value="techno">아니오(테크노파크지역,유치지역,산업단지,공업지역)</option>
-              <option value="notSubject">아니오(중과세 대상이 아님)</option>
-            </select>
-          </div>
-        </div>
+<!-- 건축물 선택 시 노출 -->
+<div id="buildingField" class="hidden">
+  <label for="buildingType">건축물 용도:</label>
+  <select id="buildingType">
+    <option value="residentialOffice" selected>주거용 오피스텔</option>
+    <option value="commercialBuilding">비거주용 건축물 (상가, 사무실, 공장 등)</option>
+    <option value="luxuryProperty">사치성 재산 (별장, 골프장, 오락장, 고급 선박, 고급 주택)</option>
+  </select>
+
+  <!-- 취득인 -->
+  <label for="buildingAcquisitionType">취득인:</label>
+  <select id="buildingAcquisitionType">
+    <option value="natural" selected>자연인</option>
+    <option value="forProfit">영리법인</option>
+    <option value="nonProfit">비영리법인</option>
+  </select>
+
+  <!-- 과밀억제권역 여부 -->
+  <div id="crowdedAreaField" class="hidden">
+    <label for="crowdedArea">과밀억제권역 여부:</label>
+    <select id="crowdedArea">
+      <option value="">-- 선택 --</option>
+      <option value="yes">예(서울, 인천, 경기 14개 도시)</option>
+      <option value="no">아니오</option>
+    </select>
+  </div>
+
+  <!-- 대도시 여부 -->
+  <div id="metropolitanAreaField" class="hidden">
+    <label for="metropolitanArea">대도시 여부:</label>
+    <select id="metropolitanArea">
+      <option value="">-- 선택 --</option>
+      <option value="yes">예</option>
+      <option value="techno">아니오(테크노파크지역, 유치지역, 산업단지, 공업지역)</option>
+      <option value="notSubject">아니오(중과세 대상이 아님)</option>
+    </select>
+  </div>
+</div>
+
 
         <!-- 부동산 금액 -->
         <label for="realEstateValue">부동산 금액 (원):</label>
