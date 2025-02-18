@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 원시취득 모달 확인 버튼 클릭 이벤트 (표준세율: 2.8% 기본, 사치성재산일 경우 10.8%)
 confirmOriginalType.addEventListener('click', () => {
-  // 입력 필드에서 부동산 금액을 가져와 숫자로 변환
+  // 부동산 금액 검증
   const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
   if (isNaN(assetValue) || assetValue <= 0) {
     alert('유효한 금액을 입력하세요.');
@@ -611,7 +611,7 @@ confirmOriginalType.addEventListener('click', () => {
   
   // 부동산 종류를 가져옴
   const selectedType = document.getElementById('realEstateType').value;
-  let baseRate = 0.028; // 원시취득 기본세율 2.8%
+  let baseRate = 0.028; // 기본 세율 2.8%
   let appliedTaxRate = "2.8%";
   
   // 건축물인 경우: 사치성재산이면 추가 8% 적용 → 총 10.8%
@@ -627,6 +627,7 @@ confirmOriginalType.addEventListener('click', () => {
       return;
     }
   }
+  // 주택의 경우는 별도 검증 없이 기본 2.8%로 계산
   
   // 취득세 계산 및 숨겨진 필드에 저장
   const acquisitionTaxCalculated = Math.floor(assetValue * baseRate);
@@ -642,6 +643,7 @@ confirmOriginalType.addEventListener('click', () => {
   // 모달 닫기
   originalModal.style.display = 'none';
 });
+
 
   // 닫기 버튼 클릭 이벤트 (원시취득 모달)
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
