@@ -575,6 +575,9 @@ window.addEventListener('click', (e) => {
     }
 });
 
+// -------------------------
+// 원시취득 모달 관련 이벤트 처리 (업데이트된 중과세율 로직)
+// -------------------------
 document.addEventListener('DOMContentLoaded', () => {
   // === 원시 취득 모달 관련 코드 ===
   const originalButton = document.getElementById('originalButton');   // 원시취득 버튼
@@ -582,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 원시취득 종류 옵션은 HTML에서 이미 업데이트 되어 있음 (예: "공유수면매립/간척", "신축/재축/증축/개축", "차량/항공기/기계장비 제조/조립", "선박건조", "점유시효취득")
   const confirmOriginalType = document.getElementById('confirmOriginalType'); // 확인 버튼
 
-  // 원시취득 모달 열기 (모든 취득유형에 대해 열리도록 경고 메시지 제거)
+  // 원시취득 모달 열기 (모든 취득유형에 대해 열리도록)
   originalButton.addEventListener('click', () => {
     originalModal.style.display = 'flex'; // 모달 표시
   });
@@ -602,20 +605,31 @@ document.addEventListener('DOMContentLoaded', () => {
     let appliedTaxRate = "2.8%";
     
     // 건축물인 경우: 사치성재산이면 추가 8% 적용 → 총 10.8%로 계산
-    if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
-      baseRate += 0.08;
-      appliedTaxRate = "10.8%";
-    }
-    
-    // 중과세 적용 공통 로직 (건축물 및 토지의 경우에 적용)
-    if ((selectedType === 'building' || selectedType === 'land') &&
+    if (selectedType === 'building') {
+      if (document.getElementById('buildingType').value === 'luxuryProperty') {
+        baseRate += 0.08;
+        appliedTaxRate = "10.8%";
+      }
+      // 건축물의 중과세 조건 적용 (crowdedArea, metropolitanArea)
+      if (
         document.getElementById('crowdedArea').value === 'yes' &&
-        document.getElementById('metropolitanArea').value === 'yes') {
-      baseRate = applyCongestionMultiplier(baseRate);
-      // 필요에 따라 appliedTaxRate 문자열도 업데이트할 수 있습니다.
-      // 예: appliedTaxRate = "중과세 적용 (" + (parseFloat(appliedTaxRate) * 3).toFixed(1) + "%)";
+        document.getElementById('metropolitanArea').value === 'yes'
+      ) {
+        baseRate = applyCongestionMultiplier(baseRate);
+      }
     }
-    // 주택 등 기타 유형은 기본 2.8%로 계산
+    // 토지인 경우: 만약 농지외토지(예: value="nonFarmland")이면 중과세 조건 적용
+    else if (selectedType === 'land') {
+      if (document.getElementById('landType').value === 'nonFarmland') {
+        if (
+          document.getElementById('landCrowdedArea').value === 'yes' &&
+          document.getElementById('landMetropolitanArea').value === 'yes'
+        ) {
+          baseRate = applyCongestionMultiplier(baseRate);
+        }
+      }
+    }
+    // 주택 등 기타 유형은 별도 중과세 조건 없이 기본 2.8%로 계산
     
     // 취득세 계산 및 숨겨진 필드에 저장
     const acquisitionTaxCalculated = Math.floor(assetValue * baseRate);
