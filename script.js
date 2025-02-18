@@ -628,7 +628,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
   });
- 
+
+// 공통 함수: 과밀억제권역 및 대도시지역 조건에 따른 중과세 적용
+function applyCongestionMultiplier(rate) {
+  const crowdedValue = document.getElementById('crowdedArea') ? document.getElementById('crowdedArea').value : null;
+  const metropolitanValue = document.getElementById('metropolitanArea') ? document.getElementById('metropolitanArea').value : null;
+  if (crowdedValue === 'yes' && metropolitanValue === 'yes') {
+    return rate * 3;
+  }
+  return rate;
+}
+
   // 월 단위로 날짜를 더하는 함수
   function addMonths(date, months) {
     const d = new Date(date);
