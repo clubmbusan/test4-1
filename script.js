@@ -60,8 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const landAcquisitionType = document.getElementById('landAcquisitionType'); // 자연인, 영리법인, 비영리법인 선택
   const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 필드
   const landCrowdedArea = document.getElementById('landCrowdedArea'); // 과밀억제권역 여부 드롭다운
-  const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드
-  const metropolitanArea = document.getElementById('metropolitanArea'); // 대도시권역 여부 드롭다운
+  const landMetropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드
+  const landMetropolitanArea = document.getElementById('metropolitanArea'); // 대도시권역 여부 드롭다운
 
   // 토지 옵션 상태 확인 함수
   function checkLandOptions() {
@@ -89,9 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 과밀억제권역 여부 선택 시, "예"이면 대도시권역 여부 필드 표시
   crowdedArea.addEventListener('change', () => {
     if (landCrowdedArea.value === 'yes') {
-      metropolitanAreaField.style.display = 'block';
+      landMetropolitanAreaField.style.display = 'block';
     } else {
-      metropolitanAreaField.style.display = 'none';
+      landMetropolitanAreaField.style.display = 'none';
     }
   });
 
