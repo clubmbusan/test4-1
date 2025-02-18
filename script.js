@@ -695,19 +695,25 @@ const baseTotalTax = acquisitionTax + computedEducationTax + computedRuralTax;
   const reportDeadlineSelect = document.getElementById('reportDeadline');
   let allowedDeadline;
   
-  // 취득일을 기준으로 신고기한을 계산 (예: 60일, 3개월 등)
-  if (reportDeadlineSelect.value === '60days') {
-    allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
-  } else if (reportDeadlineSelect.value === '3months') {
-    allowedDeadline = addMonths(baseAcquisitionDate, 3);
-  } else if (reportDeadlineSelect.value === '6months') {
-    allowedDeadline = addMonths(baseAcquisitionDate, 6);
-  } else if (reportDeadlineSelect.value === '9months') {
-    allowedDeadline = addMonths(baseAcquisitionDate, 9);
-  } else {
-    allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
-  }
-  console.log("허용 신고 기한:", allowedDeadline);
+ // 헬퍼 함수: 주어진 날짜의 해당 달 마지막 날을 반환
+ function getLastDayOfMonth(date) {
+   return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+ }
+
+ // 취득일을 기준으로 신고기한을 계산 (예: 60일, 3개월, 6개월, 9개월)
+ // 단, 증여나 상속의 경우 취득일이 속한 달의 말일부터 계산
+ if (reportDeadlineSelect.value === '60days') {
+   allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+ } else if (reportDeadlineSelect.value === '3months') {
+   allowedDeadline = addMonths(getLastDayOfMonth(baseAcquisitionDate), 3);
+ } else if (reportDeadlineSelect.value === '6months') {
+   allowedDeadline = addMonths(getLastDayOfMonth(baseAcquisitionDate), 6);
+ } else if (reportDeadlineSelect.value === '9months') {
+   allowedDeadline = addMonths(getLastDayOfMonth(baseAcquisitionDate), 9);
+ } else {
+   allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+ }
+ console.log("허용 신고 기한:", allowedDeadline);
   
   // 신고일 입력 필드 (input type="date"인 경우)
   const reportDateInput = document.getElementById('reportDate').value;
