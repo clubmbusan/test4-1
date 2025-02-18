@@ -58,21 +58,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================= 
   const landType = document.getElementById('landType'); // 농지 / 농지외토지 선택
   const landAcquisitionType = document.getElementById('landAcquisitionType'); // 자연인, 영리법인, 비영리법인 선택
-  const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 필드
-  const landCrowdedArea = document.getElementById('landCrowdedArea'); // 과밀억제권역 여부 드롭다운
-  const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField'); // 대도시권역 여부 필드
-  const landMetropolitanArea = document.getElementById('landMetropolitanArea'); // 대도시권역 여부 드롭다운
+  const crowdedAreaField = document.getElementById('crowdedAreaField'); // 과밀억제권역 여부 필드
+  const crowdedArea = document.getElementById('crowdedArea'); // 과밀억제권역 여부 드롭다운
+  const metropolitanAreaField = document.getElementById('metropolitanAreaField'); // 대도시권역 여부 필드
+  const metropolitanArea = document.getElementById('metropolitanArea'); // 대도시권역 여부 드롭다운
 
   // 토지 옵션 상태 확인 함수
   function checkLandOptions() {
     // 기본적으로 과밀억제권역 및 대도시권역 필드 숨김
-    landCrowdedAreaField.style.display = 'none';
-    landMetropolitanAreaField.style.display = 'none';
+    crowdedAreaField.style.display = 'none';
+    metropolitanAreaField.style.display = 'none';
 
     // 토지 용도가 "농지외토지"이고, 취득 유형이 영리법인 또는 비영리법인일 경우
     if (landType.value === 'nonFarmland' &&
         (landAcquisitionType.value === 'forProfit' || landAcquisitionType.value === 'nonProfit')) {
-      landCrowdedAreaField.style.display = 'block';
+        crowdedAreaField.style.display = 'block';
     }
   }
 
