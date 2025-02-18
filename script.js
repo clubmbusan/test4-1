@@ -628,8 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
   });
-});
-
  
   // 월 단위로 날짜를 더하는 함수
   function addMonths(date, months) {
