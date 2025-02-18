@@ -87,17 +87,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 과밀억제권역 여부 선택 시, "예"이면 대도시권역 여부 필드 표시
-  landCrowdedArea.addEventListener('change', () => {
-    if (landCrowdedArea.value === 'yes') {
-      landMetropolitanAreaField.style.display = 'block';
+  crowdedArea.addEventListener('change', () => {
+    if (crowdedArea.value === 'yes') {
+      metropolitanAreaField.style.display = 'block';
     } else {
-      landMetropolitanAreaField.style.display = 'none';
+      metropolitanAreaField.style.display = 'none';
     }
   });
 
   // 대도시권역 여부 선택 시, "아니오(중과세 대상이 아님)" 선택하면 안내 메시지 표시
-  landMetropolitanArea.addEventListener('change', () => {
-    if (landMetropolitanArea.value === 'notSubject') {
+  metropolitanArea.addEventListener('change', () => {
+    if (metropolitanArea.value === 'notSubject') {
       alert(
         "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
         "법인이 과밀억제권역 내에서 설립된 지 5년 미만\n" +
@@ -622,8 +622,8 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (selectedType === 'land') {
       if (document.getElementById('landType').value === 'nonFarmland') {
         if (
-          document.getElementById('landCrowdedArea').value === 'yes' &&
-          document.getElementById('landMetropolitanArea').value === 'yes'
+          document.getElementById('crowdedArea').value === 'yes' &&
+          document.getElementById('metropolitanArea').value === 'yes'
         ) {
           baseRate = applyCongestionMultiplier(baseRate);
         }
