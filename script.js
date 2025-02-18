@@ -575,80 +575,61 @@ window.addEventListener('click', (e) => {
     }
 });
 
+// === 원시취즉 모달 관련 코드  ===
 document.addEventListener('DOMContentLoaded', () => {
-  // 원시취득 모달 관련 코드 (업데이트된 원시취득 표준세율 및 세율 정보 저장)
+  // 원시취득 모달 관련 요소들
   const originalButton = document.getElementById('originalButton');   // 원시취득 버튼
   const originalModal = document.getElementById('originalModal');     // 원시취득 모달
-  const originalCategory = document.getElementById('originalCategory'); // 건축물 대분류
+  // 원시취득 종류 옵션는 HTML에서 이미 업데이트 되어 있음 (예: "공유수면매립/간척", "신축/재축/증축/개축", 등)
   const confirmOriginalType = document.getElementById('confirmOriginalType'); // 확인 버튼
 
+  // 원시취득 모달 열기 (모든 부동산 유형에서 열리도록 경고 메시지 제거)
   originalButton.addEventListener('click', () => {
-    const selectedType = document.getElementById('realEstateType').value;
-
-    // 원시취득은 건축물에만 해당됩니다.
-    if (selectedType !== 'building') {
-      alert('원시취득은 건축물에만 해당됩니다.');
-      return;
-    }
-
-    // 건축물 관련 옵션 추가
-    originalCategory.innerHTML = `
-      <option value="residential">주거용</option>
-      <option value="nonResidential">비주거용</option>
-    `;
-
     originalModal.style.display = 'flex'; // 모달 표시
   });
 
-// 원시취득 모달 확인 버튼 클릭 이벤트 (표준세율: 2.8% 기본, 사치성재산일 경우 10.8%)
-confirmOriginalType.addEventListener('click', () => {
-  // 부동산 금액 검증
-  const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
-  if (isNaN(assetValue) || assetValue <= 0) {
-    alert('유효한 금액을 입력하세요.');
-    return;
-  }
-  
-  // 부동산 종류를 가져옴
-  const selectedType = document.getElementById('realEstateType').value;
-  let baseRate = 0.028; // 기본 세율 2.8%
-  let appliedTaxRate = "2.8%";
-  
-  // 건축물인 경우: 사치성재산이면 추가 8% 적용 → 총 10.8%
-  if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
-    baseRate += 0.08;
-    appliedTaxRate = "10.8%";
-  }
-  // 토지인 경우: 반드시 "공유수면매립" 옵션이 선택되어야 함.
-  else if (selectedType === 'land') {
-    const landTypeValue = document.getElementById('landType').value;
-    if (landTypeValue !== 'sharedWaterReclamation') {
-      alert('원시취득은 토지 중 공유수면매립 옵션을 선택한 경우에만 적용됩니다. 올바른 옵션을 선택해 주세요.');
+  // 원시취득 모달 확인 버튼 클릭 이벤트 (기본 세율 2.8%, 건축물의 경우 사치성재산이면 10.8% 적용)
+  confirmOriginalType.addEventListener('click', () => {
+    // 부동산 금액 검증
+    const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
+    if (isNaN(assetValue) || assetValue <= 0) {
+      alert('유효한 금액을 입력하세요.');
       return;
     }
-  }
-  // 주택의 경우는 별도 검증 없이 기본 2.8%로 계산
+    
+    // 부동산 종류를 가져옴
+    const selectedType = document.getElementById('realEstateType').value;
+    let baseRate = 0.028; // 기본 세율 2.8%
+    let appliedTaxRate = "2.8%";
+    
+    // 건축물인 경우: 사치성재산이면 추가 8% 적용하여 10.8%로 계산
+    if (selectedType === 'building' && document.getElementById('buildingType').value === 'luxuryProperty') {
+      baseRate += 0.08;
+      appliedTaxRate = "10.8%";
+    }
+    // 토지나 주택 등은 추가 검증 없이 기본 2.8%로 계산
+    
+    // 취득세 계산 및 숨겨진 필드에 저장
+    const acquisitionTaxCalculated = Math.floor(assetValue * baseRate);
+    const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
+    if (acquisitionTaxField) {
+      acquisitionTaxField.value = acquisitionTaxCalculated;
+    }
+    
+    // 전역 변수 업데이트 (최종 결과 출력 시 활용)
+    window.selectedAcquisitionMethod = "원시취득세";
+    window.selectedAppliedTaxRate = appliedTaxRate;
+    
+    // 모달 닫기
+    originalModal.style.display = 'none';
+  });
   
-  // 취득세 계산 및 숨겨진 필드에 저장
-  const acquisitionTaxCalculated = Math.floor(assetValue * baseRate);
-  const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
-  if (acquisitionTaxField) {
-    acquisitionTaxField.value = acquisitionTaxCalculated;
-  }
-  
-  // 전역 변수 업데이트 (최종 결과 출력 시 활용)
-  window.selectedAcquisitionMethod = "원시취득세";
-  window.selectedAppliedTaxRate = appliedTaxRate;
-  
-  // 모달 닫기
-  originalModal.style.display = 'none';
-});
-
-
   // 닫기 버튼 클릭 이벤트 (원시취득 모달)
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
   });
+});
+
  
   // 월 단위로 날짜를 더하는 함수
   function addMonths(date, months) {
