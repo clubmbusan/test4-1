@@ -56,37 +56,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================
   // [A] 토지 부분(이전 수정 내용)
   // ========================= 
-  const landType = document.getElementById('landType'); // 농지 / 농지외토지 선택
-  const landAcquisitionType = document.getElementById('landAcquisitionType'); // 자연인, 영리법인, 비영리법인 선택
-  const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 필드
-  const landCrowdedArea = document.getElementById('landCrowdedArea'); // 과밀억제권역 여부 드롭다운
-  const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField'); // 대도시권역 여부 필드
-  const landMetropolitanArea = document.getElementById('landMetropolitanArea'); // 대도시권역 여부 드롭다운
+ document.addEventListener('DOMContentLoaded', () => {
+  // 토지 관련 요소 선택
+  const landType = document.getElementById('landType'); // 토지용도 드롭다운 (예: farmland, nonFarmland, sharedWaterReclamation)
+  const landAcquisitionType = document.getElementById('landAcquisitionType'); // 취득 유형 드롭다운 (예: natural, forProfit, nonProfit)
+  const landCrowdedAreaField = document.getElementById('landCrowdedAreaField'); // 과밀억제권역 여부 입력 영역
+  const landCrowdedArea = document.getElementById('landCrowdedArea'); // 과밀억제권역 드롭다운
+  const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField'); // 대도시 여부 입력 영역
+  const landMetropolitanArea = document.getElementById('landMetropolitanArea'); // 대도시 드롭다운
 
-  // 토지 옵션 상태 확인 함수
+  // 토지 옵션 상태 확인 함수 수정
   function checkLandOptions() {
-    // 기본적으로 과밀억제권역 및 대도시권역 필드 숨김
+    // 기본적으로 과밀억제권역 및 대도시 필드 숨김
     landCrowdedAreaField.style.display = 'none';
     landMetropolitanAreaField.style.display = 'none';
 
-    // 토지 용도가 "농지외토지"이고, 취득 유형이 영리법인 또는 비영리법인일 경우
-    if (landType.value === 'nonFarmland' &&
+    // 토지 용도가 "nonFarmland" 또는 "sharedWaterReclamation"이고,
+    // 취득 유형이 법인(영리법인 또는 비영리법인)인 경우에 필드를 표시
+    if ((landType.value === 'nonFarmland' || landType.value === 'sharedWaterReclamation') &&
         (landAcquisitionType.value === 'forProfit' || landAcquisitionType.value === 'nonProfit')) {
-        landCrowdedAreaField.style.display = 'block';
+      landCrowdedAreaField.style.display = 'block';
     }
   }
 
-  // 토지 용도 변경 시 체크
-  landType.addEventListener('change', () => {
-    checkLandOptions();
-  });
+  // 토지용도와 취득유형 변경 시 checkLandOptions 함수 호출
+  landType.addEventListener('change', checkLandOptions);
+  landAcquisitionType.addEventListener('change', checkLandOptions);
 
-  // 토지 취득 유형 변경 시 체크
-  landAcquisitionType.addEventListener('change', () => {
-    checkLandOptions();
-  });
-
-  // 과밀억제권역 여부 선택 시, "예"이면 대도시권역 여부 필드 표시
+  // 과밀억제권역 드롭다운 변경 시, "yes" 선택하면 대도시 여부 필드 표시
   landCrowdedArea.addEventListener('change', () => {
     if (landCrowdedArea.value === 'yes') {
       landMetropolitanAreaField.style.display = 'block';
@@ -94,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
       landMetropolitanAreaField.style.display = 'none';
     }
   });
+});
 
   // 대도시권역 여부 선택 시, "아니오(중과세 대상이 아님)" 선택하면 안내 메시지 표시
   landMetropolitanArea.addEventListener('change', () => {
