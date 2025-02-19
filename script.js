@@ -231,6 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 그 외 다른 이벤트 리스너들...
 });
 
+// 전역에 applyCongestionMultiplier 함수 정의 (중과세 적용)
+function applyCongestionMultiplier(rate, type) {
+  // type에 따른 추가 로직이 필요하면 여기서 처리할 수 있습니다.
+  // 현재는 단순히 입력 rate의 3배를 반환합니다.
+  return rate * 3;
+}
+
 // -------------------------
 // 유상취득 모달 관련 이벤트 처리 (업데이트된 매매 표준세율 및 세율 정보 저장)
 // -------------------------
