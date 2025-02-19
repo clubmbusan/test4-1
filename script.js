@@ -582,7 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // === 원시 취득 모달 관련 코드 ===
   const originalButton = document.getElementById('originalButton');   // 원시취득 버튼
   const originalModal = document.getElementById('originalModal');     // 원시취득 모달
-  // 원시취득 종류 옵션은 HTML에서 이미 업데이트 되어 있음 (예: "공유수면매립/간척", "신축/재축/증축/개축", "차량/항공기/기계장비 제조/조립", "선박건조", "점유시효취득")
   const confirmOriginalType = document.getElementById('confirmOriginalType'); // 확인 버튼
 
   // 원시취득 모달 열기 (모든 취득유형에 대해 열리도록)
@@ -590,97 +589,93 @@ document.addEventListener('DOMContentLoaded', () => {
     originalModal.style.display = 'flex'; // 모달 표시
   });
 
-  // 원시취득 모달 확인 버튼 클릭 이벤트 (기본 세율 2.8%, 건축물의 경우 사치성재산이면 10.8% 적용, 그리고 중과세 적용)
+  // 원시취득 모달 확인 버튼 이벤트
   confirmOriginalType.addEventListener('click', () => {
     // 부동산 금액 검증
-    const assetValue = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
+    const assetValue = parseInt(
+      document.getElementById('realEstateValue').value.replace(/,/g, '') || '0',
+      10
+    );
     if (isNaN(assetValue) || assetValue <= 0) {
       alert('유효한 금액을 입력하세요.');
       return;
     }
     
-    // 부동산 종류를 가져옴
+    // 부동산 종류 확인
     const selectedType = document.getElementById('realEstateType').value;
     let baseRate = 0.028; // 기본 세율 2.8%
     let appliedTaxRate = "2.8%";
     
-    // 건축물인 경우: 사치성재산이면 추가 8% 적용 → 총 10.8%로 계산
     if (selectedType === 'building') {
       if (document.getElementById('buildingType').value === 'luxuryProperty') {
         baseRate += 0.08;
         appliedTaxRate = "10.8%";
       }
-      // 건축물의 중과세 조건 적용 (crowdedArea, metropolitanArea)
+      // 건축물의 중과세 조건 적용
       if (
         document.getElementById('crowdedArea').value === 'yes' &&
         document.getElementById('metropolitanArea').value === 'yes'
       ) {
-        baseRate = applyCongestionMultiplier(baseRate);
+        baseRate = applyCongestionMultiplier(baseRate, 'building');
+        appliedTaxRate = (parseFloat(appliedTaxRate) * 3) + "%";
+      }
+    } else if (selectedType === 'land') {
+      const landTypeValue = document.getElementById('landType').value;
+      if (landTypeValue === 'farmland') {
+        baseRate = 0.03;
+        appliedTaxRate = "3%";
+      } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
+        baseRate = 0.04;
+        appliedTaxRate = 4; // 숫자형
+        const landAcqType = document.getElementById('landAcquisitionType').value;
+        if (
+          (landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
+          document.getElementById('landCrowdedArea').value === 'yes' &&
+          document.getElementById('landMetropolitanArea').value === 'yes'
+        ) {
+          baseRate = applyCongestionMultiplier(baseRate, 'land');
+          appliedTaxRate = appliedTaxRate * 3;
+        }
+        appliedTaxRate = appliedTaxRate + "%";
+      } else {
+        baseRate = 0.04;
+        appliedTaxRate = "4%";
       }
     }
+    // 주택 등 기타는 기본 2.8% 적용 (변경 없음)
     
-    // 취득세 계산 및 숨겨진 필드에 저장
     const acquisitionTaxCalculated = Math.floor(assetValue * baseRate);
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
     if (acquisitionTaxField) {
       acquisitionTaxField.value = acquisitionTaxCalculated;
     }
     
-    // 전역 변수 업데이트 (최종 결과 출력 시 활용)
     window.selectedAcquisitionMethod = "원시취득세";
     window.selectedAppliedTaxRate = appliedTaxRate;
     
-    // 모달 닫기
     originalModal.style.display = 'none';
+  }); // end of confirmOriginalType event handler
 
-  // 토지인 경우:
-  else if (selectedType === 'land') {
-    const landTypeValue = document.getElementById('landType').value;
-    if (landTypeValue === 'farmland') {
-      // 농지: 세율 3%
-      baseRate = 0.03;
-      appliedTaxRate = "3%";
-    } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
-      // 농지 외 토지 또는 공유수면 매립: 기본 세율 4%
-      baseRate = 0.04;
-      appliedTaxRate = 4; // 숫자형, 나중에 문자열로 변환
-      // 법인취득인 경우(영리, 비영리 모두) 및 과밀억제권역, 대도시 조건이 충족되면 중과세 적용
-      const landAcqType = document.getElementById('landAcquisitionType').value;
-      if ((landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
-          document.getElementById('landCrowdedArea').value === 'yes' &&
-          document.getElementById('landMetropolitanArea').value === 'yes') {
-        baseRate = applyCongestionMultiplier(baseRate, 'land');
-        appliedTaxRate = appliedTaxRate * 3;
-      }
-      appliedTaxRate = appliedTaxRate + "%";
-    } else {
-      // 예외 처리: 값이 없으면 기본적으로 4% 적용
-      baseRate = 0.04;
-      appliedTaxRate = "4%";
-    }
-    acquisitionTax = Math.floor(assetValue * baseRate);
-    window.selectedAcquisitionMethod = "매매취득세";
-  }
-
-  // 닫기 버튼 클릭 이벤트 (원시취득 모달)
+  // 닫기 버튼 이벤트 (원시취득 모달)
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
+  });
 
   // === 공통 함수: 과밀억제권역 및 대도시지역 조건에 따른 중과세 적용 ===
   function applyCongestionMultiplier(rate, type) {
-  let crowdedValue, metropolitanValue;
-  if (type === 'land') {
-    crowdedValue = document.getElementById('landCrowdedArea') ? document.getElementById('landCrowdedArea').value : null;
-    metropolitanValue = document.getElementById('landMetropolitanArea') ? document.getElementById('landMetropolitanArea').value : null;
-  } else { // 건축물 및 기타
-    crowdedValue = document.getElementById('crowdedArea') ? document.getElementById('crowdedArea').value : null;
-    metropolitanValue = document.getElementById('metropolitanArea') ? document.getElementById('metropolitanArea').value : null;
+    let crowdedValue, metropolitanValue;
+    if (type === 'land') {
+      crowdedValue = document.getElementById('landCrowdedArea') ? document.getElementById('landCrowdedArea').value : null;
+      metropolitanValue = document.getElementById('landMetropolitanArea') ? document.getElementById('landMetropolitanArea').value : null;
+    } else {
+      crowdedValue = document.getElementById('crowdedArea') ? document.getElementById('crowdedArea').value : null;
+      metropolitanValue = document.getElementById('metropolitanArea') ? document.getElementById('metropolitanArea').value : null;
+    }
+    if (crowdedValue === 'yes' && metropolitanValue === 'yes') {
+      return rate * 3;
+    }
+    return rate;
   }
-  if (crowdedValue === 'yes' && metropolitanValue === 'yes') {
-    return rate * 3;
-  }
-  return rate;
-}
 
   // === 월 단위로 날짜를 더하는 함수 ===
   function addMonths(date, months) {
