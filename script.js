@@ -91,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
       landMetropolitanAreaField.style.display = 'none';
     }
   });
-});
 
   // 대도시권역 여부 선택 시, "아니오(중과세 대상이 아님)" 선택하면 안내 메시지 표시
   landMetropolitanArea.addEventListener('change', () => {
