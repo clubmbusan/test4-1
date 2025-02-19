@@ -632,7 +632,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 모달 닫기
     originalModal.style.display = 'none';
-  });
 
   // 토지인 경우:
   else if (selectedType === 'land') {
