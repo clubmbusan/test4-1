@@ -65,17 +65,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const landMetropolitanAreaField = document.getElementById('landMetropolitanAreaField'); // 대도시 여부 입력 영역
   const landMetropolitanArea = document.getElementById('landMetropolitanArea'); // 대도시 드롭다운
 
-  // 토지 옵션 상태 확인 함수 수정
+  // 디버깅 로그: 초기 상태 확인
+  console.log("Initial landType.value:", landType.value);
+  console.log("Initial landAcquisitionType.value:", landAcquisitionType.value);
+
+   // 토지 옵션 상태 확인 함수 수정
   function checkLandOptions() {
+     console.log("checkLandOptions called");
+     console.log("landType.value =", landType.value);
+     console.log("landAcquisitionType.value =", landAcquisitionType.value);
+    
     // 기본적으로 과밀억제권역 및 대도시 필드 숨김
     landCrowdedAreaField.style.display = 'none';
     landMetropolitanAreaField.style.display = 'none';
 
-    // 토지 용도가 "nonFarmland" 또는 "sharedWaterReclamation"이고,
-    // 취득 유형이 법인(영리법인 또는 비영리법인)인 경우에 필드를 표시
+    // 조건: 토지용도가 "nonFarmland" 또는 "sharedWaterReclamation"이고,
+    // 취득 유형이 법인(영리법인 또는 비영리법인)인 경우에 과밀억제권역 필드를 표시
     if ((landType.value === 'nonFarmland' || landType.value === 'sharedWaterReclamation') &&
         (landAcquisitionType.value === 'forProfit' || landAcquisitionType.value === 'nonProfit')) {
+      console.log("조건 충족: 과밀억제권역 필드를 표시합니다.");
       landCrowdedAreaField.style.display = 'block';
+    } else {
+      console.log("조건 미충족: 과밀억제권역 필드를 숨깁니다.");
     }
   }
 
@@ -85,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 과밀억제권역 드롭다운 변경 시, "yes" 선택하면 대도시 여부 필드 표시
   landCrowdedArea.addEventListener('change', () => {
+    console.log("landCrowdedArea changed, value =", landCrowdedArea.value);
     if (landCrowdedArea.value === 'yes') {
       landMetropolitanAreaField.style.display = 'block';
     } else {
@@ -94,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 대도시 여부 선택 시, "notSubject" 선택하면 안내 메시지 표시
   landMetropolitanArea.addEventListener('change', () => {
+    console.log("landMetropolitanArea changed, value =", landMetropolitanArea.value);
     if (landMetropolitanArea.value === 'notSubject') {
       alert(
         "법인이 과밀억제권역에 본점을 설립하거나 지점 또는 분사무소 설치\n" +
