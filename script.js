@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 대도시권역 여부 선택 시, "아니오(중과세 대상이 아님)" 선택하면 안내 메시지 표시
+  // 대도시 여부 선택 시, "notSubject" 선택하면 안내 메시지 표시
   landMetropolitanArea.addEventListener('change', () => {
     if (landMetropolitanArea.value === 'notSubject') {
       alert(
@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   landType.dispatchEvent(new Event('change'));
   landAcquisitionType.dispatchEvent(new Event('change'));
   landCrowdedArea.dispatchEvent(new Event('change'));
+});
 
 // ====================================================
 // [B] 건축물 부분 - 비거주용건축물 선택 시, 법인일 때만 추가 드롭다운 표시
