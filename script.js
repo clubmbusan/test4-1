@@ -666,7 +666,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 닫기 버튼 클릭 이벤트 (원시취득 모달)
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
-  });
 
   // === 공통 함수: 과밀억제권역 및 대도시지역 조건에 따른 중과세 적용 ===
   function applyCongestionMultiplier(rate, type) {
