@@ -149,9 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   buildingType.addEventListener('change', checkBuildingOptions);
   buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
-Editing test4-1/script.js at main · clubmbusan/test4-1
-
 
   crowdedArea.addEventListener('change', () => {
     // 과밀억제권역에서 "예" 선택 시 대도시 여부 드롭다운 표시, 그 외는 숨김 처리
