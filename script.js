@@ -149,6 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   buildingType.addEventListener('change', checkBuildingOptions);
   buildingAcquisitionType.addEventListener('change', checkBuildingOptions);
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
+Editing test4-1/script.js at main · clubmbusan/test4-1
+
 
   crowdedArea.addEventListener('change', () => {
     // 과밀억제권역에서 "예" 선택 시 대도시 여부 드롭다운 표시, 그 외는 숨김 처리
@@ -618,18 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
         baseRate = applyCongestionMultiplier(baseRate);
       }
     }
-    // 토지인 경우: 만약 농지외토지(예: value="nonFarmland")이면 중과세 조건 적용
-    else if (selectedType === 'land') {
-      if (document.getElementById('landType').value === 'nonFarmland') {
-        if (
-          document.getElementById('landCrowdedArea').value === 'yes' &&
-          document.getElementById('landMetropolitanArea').value === 'yes'
-        ) {
-          baseRate = applyCongestionMultiplier(baseRate);
-        }
-      }
-    }
-    // 주택 등 기타 유형은 별도 중과세 조건 없이 기본 2.8%로 계산
     
     // 취득세 계산 및 숨겨진 필드에 저장
     const acquisitionTaxCalculated = Math.floor(assetValue * baseRate);
@@ -645,7 +636,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // 모달 닫기
     originalModal.style.display = 'none';
   });
-  
+
+  // 토지인 경우:
+  else if (selectedType === 'land') {
+    const landTypeValue = document.getElementById('landType').value;
+    if (landTypeValue === 'farmland') {
+      // 농지: 세율 3%
+      baseRate = 0.03;
+      appliedTaxRate = "3%";
+    } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
+      // 농지 외 토지 또는 공유수면 매립: 기본 세율 4%
+      baseRate = 0.04;
+      appliedTaxRate = 4; // 숫자형, 나중에 문자열로 변환
+      // 법인취득인 경우(영리, 비영리 모두) 및 과밀억제권역, 대도시 조건이 충족되면 중과세 적용
+      const landAcqType = document.getElementById('landAcquisitionType').value;
+      if ((landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
+          document.getElementById('landCrowdedArea').value === 'yes' &&
+          document.getElementById('landMetropolitanArea').value === 'yes') {
+        baseRate = applyCongestionMultiplier(baseRate, 'land');
+        appliedTaxRate = appliedTaxRate * 3;
+      }
+      appliedTaxRate = appliedTaxRate + "%";
+    } else {
+      // 예외 처리: 값이 없으면 기본적으로 4% 적용
+      baseRate = 0.04;
+      appliedTaxRate = "4%";
+    }
+    acquisitionTax = Math.floor(assetValue * baseRate);
+    window.selectedAcquisitionMethod = "매매취득세";
+  }
+
   // 닫기 버튼 클릭 이벤트 (원시취득 모달)
   document.getElementById('closeOriginalModal').addEventListener('click', () => {
     originalModal.style.display = 'none';
