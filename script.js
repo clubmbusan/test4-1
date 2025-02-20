@@ -12,14 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
       realEstateField.style.display = 'block';
       vehicleField.style.display = 'none';
       otherField.style.display = 'none';
-    } 
-    // [변경] assetType이 "vehicle" 또는 "machineryEquipment"일 때만 차량/기계장비 관련 필드를 표시
-    else if (selected === 'vehicle' || selected === 'machineryEquipment') {
+    } else if (selected === 'vehicle') {
       realEstateField.style.display = 'none';
       vehicleField.style.display = 'block';
       otherField.style.display = 'none';
 
-      // 추가: 차량/기계장비 관련 하위 필드 표시
+      // 추가: 차량 관련 하위 필드 표시
       const vehicleAcquisitionTypeField = document.getElementById('vehicleAcquisitionTypeField');
       const vehicleCongestedField = document.getElementById('vehicleCongestedField');
       if (vehicleAcquisitionTypeField) {
@@ -27,12 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       // 취득인 유형 드롭다운 변경 시, 법인 선택이면 과밀억제권역 필드 표시
       const vehicleAcquisitionType = document.getElementById('vehicleAcquisitionType');
-      // 초기 상태 설정
-      if (vehicleAcquisitionType.value === 'forProfit' || vehicleAcquisitionType.value === 'nonProfit') {
-        vehicleCongestedField.style.display = 'block';
-      } else {
-        vehicleCongestedField.style.display = 'none';
-      }
       vehicleAcquisitionType.addEventListener('change', () => {
         if (vehicleAcquisitionType.value === 'forProfit' || vehicleAcquisitionType.value === 'nonProfit') {
           vehicleCongestedField.style.display = 'block';
@@ -76,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // 초기 상태 반영
   realEstateType.dispatchEvent(new Event('change'));
+});
 
   /* =========================
      [A] 토지 부분 (이전 수정 내용)
