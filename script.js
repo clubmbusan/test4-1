@@ -48,11 +48,27 @@ document.addEventListener('DOMContentLoaded', () => {
           vehicleCongestedField.style.display = 'none';
         }
       });
-    } else {
-      // 'other'
+    }
+    // 기타 부동산이외의 자산: 선박, 항공기, 광업권, 입목, 회원권 등
+    else {
       realEstateField.style.display = 'none';
       vehicleField.style.display = 'none';
-      otherField.style.display = 'block';
+      // [수정2] 기타 자산 유형에서는 취득인 선택 필드가 있으면 그 필드를 표시, 없으면 기존 기타 필드를 표시
+      const otherAcquisitionTypeField = document.getElementById('otherAcquisitionTypeField');
+      if (otherAcquisitionTypeField) {
+        otherAcquisitionTypeField.style.display = 'block';
+      } else {
+        otherField.style.display = 'block';
+      }
+      // 차량 관련 필드 숨김
+      const vehicleAcquisitionTypeField = document.getElementById('vehicleAcquisitionTypeField');
+      const vehicleCongestedField = document.getElementById('vehicleCongestedField');
+      if (vehicleAcquisitionTypeField) {
+        vehicleAcquisitionTypeField.style.display = 'none';
+      }
+      if (vehicleCongestedField) {
+        vehicleCongestedField.style.display = 'none';
+      }
     }
   });
   // 초기 상태 반영
