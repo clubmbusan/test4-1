@@ -1048,5 +1048,4 @@ resultDiv.innerHTML = `
     <hr>
    <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
   `;
- });
 });
