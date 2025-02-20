@@ -22,6 +22,26 @@
         <option value="membership">회원권(골프,콘도,요트,종합체육시설이용,승마)</option>
       </select>
 
+      <!-- 차량 취득인 선택 (추가) -->
+      <div id="vehicleAcquisitionTypeField" style="display: none;">
+       <label for="vehicleAcquisitionType">취득인 유형:</label>
+       <select id="vehicleAcquisitionType">
+         <option value="natural">자연인</option>
+         <option value="forProfit">영리법인</option>
+         <option value="nonProfit">비영리법인</option>
+       </select>
+     </div>
+
+     <!-- 차량 과밀억제권역 여부 선택 (추가) -->
+     <div id="vehicleCongestedField" style="display: none;">
+       <label for="vehicleCongested">과밀억제권역 여부:</label>
+       <select id="vehicleCongested">
+         <option value="">-- 선택 --</option>
+         <option value="yes">예(서울, 인천, 경기 14개 도시)(</option>
+         <option value="no">아니오</option>
+       </select>
+     </div>
+      
       <!-- [부동산 전용] 필드: 주택/토지/건물 선택 + 각 세부필드 + 부동산 금액 -->
       <div id="realEstateField">
         <label for="realEstateType">부동산 종류:</label>
