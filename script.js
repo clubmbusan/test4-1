@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // 초기 상태 반영
   realEstateType.dispatchEvent(new Event('change'));
+});
 
   /* =========================
      [A] 토지 부분 (이전 수정 내용)
