@@ -377,70 +377,82 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 토지 계산
     // =====================
     else if (selectedType === 'land') {
-      // 토지 계산: 토지 용도에 따라 (농지: 3%, 농지 외 토지: 4%)
-      const landTypeValue = document.getElementById('landType').value;
-      const landAcqType = document.getElementById('landAcquisitionType').value;
-      let baseRate = 0, taxRateNumeric = 0;
-      
-      if (landTypeValue === 'farmland') {
-        baseRate = 0.03;
-        taxRateNumeric = 3;
-      } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
-        baseRate = 0.04;
-        taxRateNumeric = 4;
-        // 법인 취득인인 경우에만 과밀억제권역 및 대도시 여부 확인
-        if ((landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
-            document.getElementById('landCrowdedArea').value === 'yes' &&
-            document.getElementById('landMetropolitanArea').value === 'yes') {
-          baseRate = applyCongestionMultiplier(baseRate, 'land'); // 내부 함수에서 rate * 3 반환
-          taxRateNumeric = taxRateNumeric * 3;
-        }
-      } else {
-        baseRate = 0.04;
-        taxRateNumeric = 4;
-      }
-      
-      acquisitionTax = Math.floor(assetValueNum * baseRate);
-      appliedTaxRate = taxRateNumeric + "%";
-      window.selectedAcquisitionMethod = "매매취득세";
-    }
+     const landTypeValue = document.getElementById('landType').value;
+     const landAcqType = document.getElementById('landAcquisitionType').value;
+     let baseRate = 0, taxRateNumeric = 0;
+  
+     if (landTypeValue === 'farmland') {
+       baseRate = 0.03;
+       taxRateNumeric = 3;
+     } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
+       baseRate = 0.04;
+       taxRateNumeric = 4;
+       if ((landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
+           document.getElementById('landCrowdedArea').value === 'yes') {
+         if (document.getElementById('landMetropolitanArea').value === 'yes') {
+            // 표준 조건: 4%×3 = 12%
+            baseRate = applyCongestionMultiplier(baseRate, 'land');
+            taxRateNumeric = taxRateNumeric * 3;
+         } else if (document.getElementById('landMetropolitanArea').value === 'yes_relaxed') {
+            // 완화 조건: 사용자가 완화 적용을 선택한 경우 → (4%×3) - 4% = 12% - 4% = 8%
+            baseRate = applyCongestionMultiplier(baseRate, 'land') - 0.04;
+            taxRateNumeric = (taxRateNumeric * 3) - 4;
+         }
+       }
+     } else {
+       baseRate = 0.04;
+       taxRateNumeric = 4;
+     }
+  
+     acquisitionTax = Math.floor(assetValueNum * baseRate);
+     appliedTaxRate = taxRateNumeric + "%";
+     window.selectedAcquisitionMethod = "매매취득세";
+   }
+
     // =====================
     // 3. 건축물 계산
     // =====================
     else if (selectedType === 'building') {
-      // 건축물의 경우
-      // 사치성재산에 대해서는 취득인이 법인이고 과밀억제권역 및 대도시 조건 충족 시 2중 중과세 적용
-      if (document.getElementById('buildingType').value === 'luxuryProperty') {
-        const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
-        if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
-            document.getElementById('crowdedArea').value === 'yes' &&
-            document.getElementById('metropolitanArea').value === 'yes') {
-          // 승계유상취득(매매)의 경우: 표준세율 4%의 3배 + 중과 기준세율 2%의 2배 = 12% + 4% = 16%
-          let baseRate = 0.16;
-          acquisitionTax = Math.floor(assetValueNum * baseRate);
-          appliedTaxRate = "16%";
-        } else {
-          // 조건 미충족 시 기본 사치성재산 세율 적용 (12%)
-          let baseRate = 0.12;
-          acquisitionTax = Math.floor(assetValueNum * baseRate);
-          appliedTaxRate = "12%";
-        }
-      } else {
-        let baseRate = 0.04;
-        let taxRateNumeric = 4;
-        const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
-        // 일반 건축물: 법인 취득인일 경우 과밀억제권역 및 대도시 조건 충족 시 중과세 적용
-        if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
-            document.getElementById('crowdedArea').value === 'yes' &&
-            document.getElementById('metropolitanArea').value === 'yes') {
-          baseRate = applyCongestionMultiplier(baseRate, 'building'); // 내부 함수에서 rate * 3 반환
-          taxRateNumeric = taxRateNumeric * 3;
-        }
-        acquisitionTax = Math.floor(assetValueNum * baseRate);
-        appliedTaxRate = taxRateNumeric + "%";
-      }
-      window.selectedAcquisitionMethod = "매매취득세";
-    }
+     // 건축물의 경우
+     if (document.getElementById('buildingType').value === 'luxuryProperty') {
+       // 사치성재산은 완화 적용 없이 기본 세율 적용
+       const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
+       if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
+           document.getElementById('crowdedArea').value === 'yes' &&
+           document.getElementById('metropolitanArea').value === 'yes') {
+         // 기존 조건: 4%×3 + 중과 기준세율 2%×2 = 12% + 4% = 16%
+         let baseRate = 0.16;
+         acquisitionTax = Math.floor(assetValueNum * baseRate);
+         appliedTaxRate = "16%";
+       } else {
+         // 조건 미충족 시 기본 사치성재산 세율 적용 (12%)
+         let baseRate = 0.12;
+         acquisitionTax = Math.floor(assetValueNum * baseRate);
+         appliedTaxRate = "12%";
+       }
+     } else {
+       // 사치성재산이 아닌 일반 건축물의 경우
+       let baseRate = 0.04;
+       let taxRateNumeric = 4;
+       const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
+       if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
+           document.getElementById('crowdedArea').value === 'yes') {
+         if (document.getElementById('metropolitanArea').value === 'yes') {
+           // 표준 조건: 4%×3 = 12%
+           baseRate = applyCongestionMultiplier(baseRate, 'building');
+           taxRateNumeric = taxRateNumeric * 3;
+         } else if (document.getElementById('metropolitanArea').value === 'yes_relaxed') {
+           // 완화 조건: (4%×3) - 4% = 12% - 4% = 8%
+           baseRate = applyCongestionMultiplier(baseRate, 'building') - 0.04;
+           taxRateNumeric = (taxRateNumeric * 3) - 4;
+         }
+       }
+       acquisitionTax = Math.floor(assetValueNum * baseRate);
+       appliedTaxRate = taxRateNumeric + "%";
+     }
+     window.selectedAcquisitionMethod = "매매취득세";
+   }
+
     // ---------------------------
     // 계산된 취득세와 적용 세율 정보를 저장
     // ---------------------------
@@ -643,49 +655,61 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("[원시취득] 초기 baseRate:", baseRate, " selectedType:", selectedType);
     
     if (selectedType === 'building') {
-      const buildingTypeValue = document.getElementById('buildingType').value;
-      console.log("[원시취득] buildingTypeValue:", buildingTypeValue);
-      if (buildingTypeValue === 'luxuryProperty') {
-        const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
-        if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
-            document.getElementById('crowdedArea').value === 'yes' &&
-            document.getElementById('metropolitanArea').value === 'yes') {
-          // 원시취득의 경우: 2.8% * 3 + 2% * 2 = 8.4% + 4% = 12.4%
-          baseRate = 0.124;
-          appliedTaxRate = "12.4%";
-        } else {
-          baseRate += 0.08;
-          appliedTaxRate = 10.8;
-        }
-      }
-      console.log("[원시취득] 건축물 - 중과 적용 후 baseRate:", baseRate);
-    } else if (selectedType === 'land') {
-      const landTypeValue = document.getElementById('landType').value;
-      console.log("[원시취득] landTypeValue:", landTypeValue);
-      if (landTypeValue === 'farmland') {
-        baseRate = 0.03;
-        appliedTaxRate = 3;
-      } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
-        baseRate = 0.04;
-        appliedTaxRate = 4;
-        console.log("[원시취득] 토지 - 중과 적용 전 baseRate:", baseRate);
-        const landAcqType = document.getElementById('landAcquisitionType').value;
-        console.log("[원시취득] landAcquisitionType:", landAcqType);
-        if ((landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
-            document.getElementById('landCrowdedArea').value === 'yes' &&
-            document.getElementById('landMetropolitanArea').value === 'yes') {
-          baseRate = applyCongestionMultiplier(baseRate, 'land');
-          appliedTaxRate = appliedTaxRate * 3;
-        }
-        console.log("[원시취득] 토지 - 중과 적용 후 baseRate:", baseRate);
-        appliedTaxRate = appliedTaxRate + "%";
-      } else {
-        baseRate = 0.04;
-        appliedTaxRate = "4%";
-      }
-    }
-    // 주택 등 기타 유형은 기본 2.8% 적용
+     const buildingTypeValue = document.getElementById('buildingType').value;
+     if (buildingTypeValue === 'luxuryProperty') {
+       const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
+       if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
+           document.getElementById('crowdedArea').value === 'yes') {
+         if (document.getElementById('metropolitanArea').value === 'yes') {
+           // 원시취득 일반 조건: 2.8% * 3 + 2% * 2 = 8.4% + 4% = 12.4%
+           baseRate = 0.124;
+           appliedTaxRate = "12.4%";
+         } else if (document.getElementById('metropolitanArea').value === 'yes_relaxed') {
+           // 완화 적용: (2.8%*3 - 4%) + (2%*2) = (8.4% - 4% + 4%) = 8.4%
+           baseRate = 0.084;
+           appliedTaxRate = "8.4%";
+         } else {
+           baseRate += 0.08;
+           appliedTaxRate = 10.8;
+         }
+       } else {
+         baseRate += 0.08;
+         appliedTaxRate = 10.8;
+       }
+     }
+   }
     
+    // 주택 등 기타 유형은 기본 2.8% 적용
+    else if (selectedType === 'land') {
+     const landTypeValue = document.getElementById('landType').value;
+     console.log("[원시취득] landTypeValue:", landTypeValue);
+     if (landTypeValue === 'farmland') {
+       baseRate = 0.03;
+       appliedTaxRate = 3;
+     } else if (landTypeValue === 'nonFarmland' || landTypeValue === 'sharedWaterReclamation') {
+       baseRate = 0.04;
+       appliedTaxRate = 4;
+       console.log("[원시취득] 토지 - 중과 적용 전 baseRate:", baseRate);
+       const landAcqType = document.getElementById('landAcquisitionType').value;
+       console.log("[원시취득] landAcquisitionType:", landAcqType);
+       if ((landAcqType === 'forProfit' || landAcqType === 'nonProfit') &&
+           document.getElementById('landCrowdedArea').value === 'yes') {
+         if (document.getElementById('landMetropolitanArea').value === 'yes') {
+            baseRate = applyCongestionMultiplier(baseRate, 'land');
+            appliedTaxRate = appliedTaxRate * 3;
+         } else if (document.getElementById('landMetropolitanArea').value === 'yes_relaxed') {
+            baseRate = applyCongestionMultiplier(baseRate, 'land') - 0.04;
+            appliedTaxRate = appliedTaxRate * 3 - 4;
+         }
+       }
+       console.log("[원시취득] 토지 - 중과 적용 후 baseRate:", baseRate);
+       appliedTaxRate = appliedTaxRate + "%";
+     } else {
+       baseRate = 0.04;
+       appliedTaxRate = "4%";
+     }
+   }
+
     const acquisitionTaxCalculated = Math.floor(assetValueNum * baseRate);
     console.log("[원시취득] 최종 baseRate:", baseRate, " acquisitionTaxCalculated:", acquisitionTaxCalculated);
     const acquisitionTaxField = document.getElementById('calculatedAcquisitionTax');
