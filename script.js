@@ -1018,27 +1018,35 @@ document.addEventListener('DOMContentLoaded', () => {
       discountRateText = "없음";
     }
     
-    const totalTax = baseTotalTax + finalPenalty;
-  
-    // ---------------------------
-    // 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 출력
-    // ---------------------------
-    const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = `
-      <h3>계산 결과</h3>
-      <p>${window.selectedAcquisitionMethod || "취득세"}: ${acquisitionTax.toLocaleString()} 원 (적용 세율: ${window.selectedAppliedTaxRate || "0%"})</p>
-      <p>지방교육세: ${computedEducationTax.toLocaleString()} 원</p>
-      <p>농어촌특별세: ${computedRuralTax.toLocaleString()} 원</p>
-      <hr>
-      ${finalPenalty > 0 ? `
-        <p>무신고 가산세: ${basePenalty.toLocaleString()} 원</p>
-        <p>지연 가산세: ${delayPenalty.toLocaleString()} 원</p>
-        <p>감경율: ${discountRateText}</p>
-        <p>최종 가산세: ${finalPenalty.toLocaleString()} 원</p>
-        <p>신고기한 초과 경과일: ${lateDays} 일</p>
-      ` : `<p>가산세: 없음</p>`}
-      <hr>
-      <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
-    `;
-  }
+    // 취득세 계산 후
+const totalTax = baseTotalTax + finalPenalty;
+
+// ---------------------------
+// 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 출력
+// ---------------------------
+let penaltyHTML = "";
+if (finalPenalty > 0) {
+  penaltyHTML = `
+    <p>무신고 가산세: ${basePenalty.toLocaleString()} 원</p>
+    <p>지연 가산세: ${delayPenalty.toLocaleString()} 원</p>
+    <p>감경율: ${discountRateText}</p>
+    <p>최종 가산세: ${finalPenalty.toLocaleString()} 원</p>
+    <p>신고기한 초과 경과일: ${lateDays} 일</p>
+  `;
+} else {
+  penaltyHTML = `<p>가산세: 없음</p>`;
+}
+
+const resultDiv = document.getElementById('result');
+resultDiv.innerHTML = `
+    <h3>계산 결과</h3>
+    <p>${window.selectedAcquisitionMethod || "취득세"}: ${acquisitionTax.toLocaleString()} 원 (적용 세율: ${window.selectedAppliedTaxRate || "0%"})</p>
+    <p>지방교육세: ${computedEducationTax.toLocaleString()} 원</p>
+    <p>농어촌특별세: ${computedRuralTax.toLocaleString()} 원</p>
+    <hr>
+    ${penaltyHTML}
+    <hr>
+   <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
+  `;
+ });
 });
