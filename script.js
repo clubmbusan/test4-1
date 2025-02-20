@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   realEstateType.dispatchEvent(new Event('change'));
 
   /* =========================
-     [A] 토지 부분(이전 수정 내용)
+     [A] 토지 부분 (이전 수정 내용)
      ========================= */
   const landType = document.getElementById('landType'); // 토지용도 드롭다운 (예: farmland, nonFarmland, sharedWaterReclamation)
   const landAcquisitionType = document.getElementById('landAcquisitionType'); // 취득 유형 드롭다운 (예: natural, forProfit, nonProfit)
@@ -143,13 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const bt = buildingType.value;       // 건축물용도 값
     const bat = buildingAcquisitionType.value; // 취득 유형 값
 
-    // 사치성 재산은 추가 드롭다운을 아예 표시하지 않음.
-    if (bt === 'luxuryProperty') {
-      return;
-    }
-    
-    // 주거용 오피스텔, 신축건물, 비거주용건축물 모두
-    // 취득 유형이 법인(영리법인 또는 비영리법인)일 때만 추가 드롭다운을 표시
+    // 기존에는 사치성재산은 드롭다운을 표시하지 않았으나,
+    // 이제 사치성재산도 포함하여, 법인일 경우 과밀/대도시 선택을 할 수 있도록 함
     if (bat === 'forProfit' || bat === 'nonProfit') {
       crowdedAreaField.style.display = 'block';
     }
@@ -211,10 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
     reportSection.style.display = (reportSection.style.display === 'none' || reportSection.style.display === '') ? 'block' : 'none';
   });
 
-// ====================================================
-//  /* 신고 제출 버튼 이벤트 처리 (신고 입력값 저장 및 신고 영역 숨김) */
-// ====================================================
-   document.getElementById('submitReportButton').addEventListener('click', () => {
+  /* 신고 제출 버튼 이벤트 처리 (신고 입력값 저장 및 신고 영역 숨김) */
+  document.getElementById('submitReportButton').addEventListener('click', () => {
     const reportDate = document.getElementById('reportDate').value;
     const reportDeadline = document.getElementById('reportDeadline').value;
     const extendedReportDate = document.getElementById('extendedReportDate').value; // 선택 사항
@@ -239,9 +232,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return rate * 3;
   }
 
-// -------------------------
-// 유상취득 모달 관련 이벤트 처리 (업데이트된 매매 표준세율 및 세율 정보 저장)
-// -------------------------
+  // -------------------------
+  // 8. 유상취득 모달 관련 이벤트 처리 (업데이트된 매매 표준세율 및 세율 정보 저장)
+  // -------------------------
   const saleButton = document.getElementById('saleButton');
   const saleModal = document.getElementById('saleModal');
   const confirmSaleType = document.getElementById('confirmSaleType');
@@ -415,16 +408,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. 건축물 계산
     // =====================
     else if (selectedType === 'building') {
-      // 사치성재산은 기존 로직대로 처리 (이미 정상 적용)
+      // 건축물의 경우
+      // 사치성재산에 대해서는 취득인이 법인이고 과밀억제권역 및 대도시 조건 충족 시 2중 중과세 적용
       if (document.getElementById('buildingType').value === 'luxuryProperty') {
-        let baseRate = 0.12;
-        acquisitionTax = Math.floor(assetValueNum * baseRate);
-        appliedTaxRate = "12%";
+        const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
+        if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
+            document.getElementById('crowdedArea').value === 'yes' &&
+            document.getElementById('metropolitanArea').value === 'yes') {
+          // 승계유상취득(매매)의 경우: 표준세율 4%의 3배 + 중과 기준세율 2%의 2배 = 12% + 4% = 16%
+          let baseRate = 0.16;
+          acquisitionTax = Math.floor(assetValueNum * baseRate);
+          appliedTaxRate = "16%";
+        } else {
+          // 조건 미충족 시 기본 사치성재산 세율 적용 (12%)
+          let baseRate = 0.12;
+          acquisitionTax = Math.floor(assetValueNum * baseRate);
+          appliedTaxRate = "12%";
+        }
       } else {
         let baseRate = 0.04;
         let taxRateNumeric = 4;
         const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
-        // 법인 취득인인 경우에만 과밀억제권역 및 대도시 여부 확인
+        // 일반 건축물: 법인 취득인일 경우 과밀억제권역 및 대도시 조건 충족 시 중과세 적용
         if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
             document.getElementById('crowdedArea').value === 'yes' &&
             document.getElementById('metropolitanArea').value === 'yes') {
@@ -459,9 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-// -------------------------
-// /* 증여 취득 모달 관련 코드 (업데이트된 증여 표준세율 및 세율 정보 저장) */
-// -------------------------
+  /* =========================
+     8. 증여 취득 모달 관련 코드 (업데이트된 증여 표준세율 및 세율 정보 저장)
+     ========================= */
   const giftButton = document.getElementById('giftButton'); // 증여취득 버튼
   const giftModal = document.getElementById('giftModal');   // 증여 모달
   const confirmGiftType = document.getElementById('confirmGiftType'); // 확인 버튼
@@ -534,9 +539,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-// -------------------------
-// /* 상속 취득 모달 관련 코드 (업데이트된 상속 표준세 적용 및 세율 정보 저장) */
-// -------------------------
+  /* =========================
+     9. 상속 취득 모달 관련 코드 (업데이트된 상속 표준세 적용 및 세율 정보 저장)
+     ========================= */
   const inheritanceButton = document.getElementById('inheritanceButton'); // 상속취득 버튼
   const inheritanceModal = document.getElementById('inheritanceModal');   // 상속취득 모달
   const confirmInheritanceType = document.getElementById('confirmInheritanceType'); // 확인 버튼
@@ -568,10 +573,19 @@ document.addEventListener('DOMContentLoaded', () => {
       // 건축물의 기본 상속세율은 2.8%
       baseRate = 0.028;
       appliedTaxRate = "2.8%";
-      // 사치성재산이면 8% 추가
+      // 사치성재산인 경우
       if (document.getElementById('buildingType').value === 'luxuryProperty') {
-        baseRate += 0.08; // 2.8% + 8% = 10.8%
-        appliedTaxRate = "10.8%";
+        const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
+        if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
+            document.getElementById('crowdedArea').value === 'yes' &&
+            document.getElementById('metropolitanArea').value === 'yes') {
+          // 원시취득의 경우: 2.8% * 3 + 2% * 2 = 8.4% + 4% = 12.4%
+          baseRate = 0.124;
+          appliedTaxRate = "12.4%";
+        } else {
+          baseRate += 0.08;
+          appliedTaxRate = 10.8;
+        }
       }
     } else {
       // 주택 등 기타 경우 기본 2.8%
@@ -591,22 +605,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // 모달 닫기
     inheritanceModal.style.display = 'none';
   });
-  
-  // 닫기 버튼 클릭 이벤트
+
   closeInheritanceModal.addEventListener('click', () => {
     inheritanceModal.style.display = 'none';
   });
 
-  // 모달 외부 클릭 시 닫기
   window.addEventListener('click', (e) => {
     if (e.target === inheritanceModal) {
       inheritanceModal.style.display = 'none';
     }
   });
 
-// -------------------------
-// /* 원시 취득 모달 관련 코드 (업데이트된 중과세율 로직) */
-// -------------------------
+  /* =========================
+     10. 원시 취득 모달 관련 코드 (업데이트된 중과세율 로직)
+     ========================= */
   const originalButton = document.getElementById('originalButton');   // 원시취득 버튼
   const originalModal = document.getElementById('originalModal');     // 원시취득 모달
   const confirmOriginalType = document.getElementById('confirmOriginalType'); // 확인 버튼
@@ -634,14 +646,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const buildingTypeValue = document.getElementById('buildingType').value;
       console.log("[원시취득] buildingTypeValue:", buildingTypeValue);
       if (buildingTypeValue === 'luxuryProperty') {
-        baseRate += 0.08;
-        appliedTaxRate = 10.8;
-      }
-      console.log("[원시취득] 건축물 - 중과 적용 전 baseRate:", baseRate);
-      if (document.getElementById('crowdedArea').value === 'yes' &&
-          document.getElementById('metropolitanArea').value === 'yes') {
-        baseRate = applyCongestionMultiplier(baseRate, 'building');
-        appliedTaxRate = appliedTaxRate * 3;
+        const buildingAcqType = document.getElementById('buildingAcquisitionType').value;
+        if ((buildingAcqType === 'forProfit' || buildingAcqType === 'nonProfit') &&
+            document.getElementById('crowdedArea').value === 'yes' &&
+            document.getElementById('metropolitanArea').value === 'yes') {
+          // 원시취득의 경우: 2.8% * 3 + 2% * 2 = 8.4% + 4% = 12.4%
+          baseRate = 0.124;
+          appliedTaxRate = "12.4%";
+        } else {
+          baseRate += 0.08;
+          appliedTaxRate = 10.8;
+        }
       }
       console.log("[원시취득] 건축물 - 중과 적용 후 baseRate:", baseRate);
     } else if (selectedType === 'land') {
@@ -699,10 +714,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return d;
   }
         
-// -------------------------
-///* 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력) */
-// -------------------------
- document.getElementById('calculateButton').addEventListener('click', () => {
+  /* 12. 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력) */
+  document.getElementById('calculateButton').addEventListener('click', () => {
     // 취득유형에 따라 올바른 취득일 입력 필드에서 값을 읽어옵니다.
     const acquisitionMethod = window.selectedAcquisitionMethod || "";
     let acquisitionDateInput = "";
