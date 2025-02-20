@@ -755,8 +755,145 @@ document.addEventListener('DOMContentLoaded', () => {
   }
         
   /* 12. 계산하기 버튼: 최종 계산 (업데이트된 결과지 출력) */
-  document.getElementById('calculateButton').addEventListener('click', () => {
-    // 취득유형에 따라 올바른 취득일 입력 필드에서 값을 읽어옵니다.
+ document.getElementById('calculateButton').addEventListener('click', () => {
+  // 재산 유형에 따라 분기: 부동산(realEstate)과 그 외
+  const assetTypeValue = document.getElementById('assetType').value;
+  
+  // 부동산 외 자산: 기본 취득세율 2% 적용 (등록(면허)세 포함)
+  if (assetTypeValue !== "realEstate") {
+    let assetValueNum = 0;
+    let acquisitionTax = 0;
+    let appliedTaxRate = "2%"; // 기본 2%
+    let registrationTax = 0; // 등록(면허)세(건당)
+    
+    // 자산 유형에 따라 금액 입력 필드 선택
+    if (assetTypeValue === "vehicle" || assetTypeValue === "shipAircraft") {
+      assetValueNum = parseInt(document.getElementById('vehiclePrice').value.replace(/,/g, '') || '0', 10);
+    } else {
+      // resource, timberland, membership 등은 realEstateValue 필드를 사용
+      assetValueNum = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);
+    }
+    
+    if (isNaN(assetValueNum) || assetValueNum <= 0) {
+      alert('유효한 금액을 입력하세요.');
+      return;
+    }
+    
+    // 기본 취득세 2% 적용
+    acquisitionTax = Math.floor(assetValueNum * 0.02);
+    
+    // 각 자산 유형별 추가 등록(면허)세 적용 (건당)
+    if (assetTypeValue === "timberland") {
+      registrationTax = 12000;
+      acquisitionTax += registrationTax;
+    } else if (assetTypeValue === "resource") {
+      registrationTax = 135000;
+      acquisitionTax += registrationTax;
+    }
+    // membership (골프회원권)은 등록세 없음
+    
+    window.selectedAcquisitionMethod = "취득세";
+    window.selectedAppliedTaxRate = appliedTaxRate;
+    
+    // 부가세 계산 (예: 지방교육세, 농어촌특별세) – 예시로 계산 (필요 시 수정)
+    const computedEducationTax = Math.floor(assetValueNum * (0.04 - 0.02) * 0.20);
+    const computedRuralTax = Math.floor(assetValueNum * 0.02 * 0.10);
+    const baseTotalTax = acquisitionTax + computedEducationTax + computedRuralTax;
+    
+    // 신고일 및 신고 기한에 따른 가산세 계산 (업데이트된 코드)
+    const reportDeadlineSelect = document.getElementById('reportDeadline');
+    let allowedDeadline;
+    
+    function getLastDayOfMonth(date) {
+      return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+    
+    const acquisitionDateInput = document.getElementById('acquisitionDate').value;
+    if (!acquisitionDateInput) {
+      alert('취득일을 입력해주십시오.');
+      return;
+    }
+    const baseAcquisitionDate = new Date(acquisitionDateInput);
+    console.log("취득일:", baseAcquisitionDate);
+    
+    if (reportDeadlineSelect.value === '60days') {
+      allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+    } else if (reportDeadlineSelect.value === '3months') {
+      allowedDeadline = addMonths(getLastDayOfMonth(baseAcquisitionDate), 3);
+    } else if (reportDeadlineSelect.value === '6months') {
+      allowedDeadline = addMonths(getLastDayOfMonth(baseAcquisitionDate), 6);
+    } else if (reportDeadlineSelect.value === '9months') {
+      allowedDeadline = addMonths(getLastDayOfMonth(baseAcquisitionDate), 9);
+    } else {
+      allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+    }
+    console.log("허용 신고 기한:", allowedDeadline);
+    
+    const reportDateInput = document.getElementById('reportDate').value;
+    let basePenalty = 0, delayPenalty = 0, totalPenalty = 0, finalPenalty = 0;
+    let discountRateText = "없음";
+    let lateDays = 0;
+    
+    if (reportDateInput) {
+      const reportDate = new Date(reportDateInput);
+      console.log("신고일:", reportDate);
+      if (reportDate > allowedDeadline) {
+        const diffTime = reportDate.getTime() - allowedDeadline.getTime();
+        lateDays = Math.ceil(diffTime / (24 * 60 * 60 * 1000));
+        console.log("초과일수:", lateDays);
+        
+        basePenalty = acquisitionTax * 0.2;
+        delayPenalty = acquisitionTax * (lateDays * 0.00022);
+        totalPenalty = basePenalty + delayPenalty;
+        
+        let discountFactor = 1.0;
+        if (lateDays <= 30) {
+          discountFactor = 0.5;
+          discountRateText = "50% 감경";
+        } else if (lateDays <= 90) {
+          discountFactor = 0.7;
+          discountRateText = "30% 감경";
+        } else if (lateDays <= 180) {
+          discountFactor = 0.8;
+          discountRateText = "20% 감경";
+        } else {
+          discountFactor = 1.0;
+          discountRateText = "감경 없음";
+        }
+        finalPenalty = Math.floor(totalPenalty * discountFactor);
+      } else {
+        finalPenalty = 0;
+        discountRateText = "없음";
+      }
+    } else {
+      finalPenalty = 0;
+      discountRateText = "없음";
+    }
+    
+    const totalTax = baseTotalTax + finalPenalty;
+    
+    // 결과 출력 (등록(면허)세 금액(건당) 별도 표시)
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+      <h3>계산 결과</h3>
+      <p>${window.selectedAcquisitionMethod || "취득세"}: ${acquisitionTax.toLocaleString()} 원 (적용 세율: ${window.selectedAppliedTaxRate || "0%"})</p>
+      ${registrationTax ? `<p>등록(면허)세: ${registrationTax.toLocaleString()} 원 (건당)</p>` : ""}
+      <p>지방교육세: ${computedEducationTax.toLocaleString()} 원</p>
+      <p>농어촌특별세: ${computedRuralTax.toLocaleString()} 원</p>
+      <hr>
+      <p>무신고 가산세: ${basePenalty.toLocaleString()} 원</p>
+      <p>지연 가산세: ${delayPenalty.toLocaleString()} 원</p>
+      <p>감경율: ${discountRateText}</p>
+      <p>최종 가산세: ${finalPenalty.toLocaleString()} 원</p>
+      <p>신고기한 초과 경과일: ${lateDays} 일</p>
+      <hr>
+      <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
+    `;
+    return;
+  }
+  
+  // 부동산인 경우 기존 로직 실행 (모달에서 계산된 취득세 사용)
+  else {
     const acquisitionMethod = window.selectedAcquisitionMethod || "";
     let acquisitionDateInput = "";
     
@@ -778,9 +915,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseAcquisitionDate = new Date(acquisitionDateInput);
     console.log("취득일:", baseAcquisitionDate);
     
-    // ---------------------------
-    // 숨겨진 필드에서 취득세 불러오기 및 검증
-    // ---------------------------
     const acquisitionTaxElement = document.getElementById('calculatedAcquisitionTax');
     if (!acquisitionTaxElement || acquisitionTaxElement.value === "") {
       alert('모달에서 취득세를 계산해주세요.');
@@ -793,29 +927,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
      
-    // ---------------------------
-    // 부가세 계산 (예: 지방교육세, 농어촌특별세) - 수정된 로직
-    // ---------------------------
-    // 부동산 금액을 가져옵니다.
     const assetValueNum = parseInt(document.getElementById('realEstateValue').value.replace(/,/g, '') || '0', 10);  
-    let standardRate = 0.04; // 예를 들어, 표준세율이 4%로 가정
-    const computedEducationTax = Math.floor(assetValueNum * (standardRate - 0.02) * 0.20); // (표준세율 - 2%)의 20%
-    const computedRuralTax = Math.floor(assetValueNum * 0.02 * 0.10); // 과표의 2%의 10%
+    let standardRate = 0.04;
+    const computedEducationTax = Math.floor(assetValueNum * (standardRate - 0.02) * 0.20);
+    const computedRuralTax = Math.floor(assetValueNum * 0.02 * 0.10);
     const baseTotalTax = acquisitionTax + computedEducationTax + computedRuralTax;
      
-    // ---------------------------
-    // 신고일 및 신고 기한에 따른 가산세 계산 (업데이트된 코드)
-    // ---------------------------
     const reportDeadlineSelect = document.getElementById('reportDeadline');
     let allowedDeadline;
     
-    // 헬퍼 함수: 주어진 날짜의 해당 달 마지막 날을 반환
     function getLastDayOfMonth(date) {
       return new Date(date.getFullYear(), date.getMonth() + 1, 0);
     }
     
-    // 취득일을 기준으로 신고기한을 계산 (예: 60일, 3개월, 6개월, 9개월)
-    // 단, 증여나 상속의 경우 취득일이 속한 달의 말일부터 계산
     if (reportDeadlineSelect.value === '60days') {
       allowedDeadline = new Date(baseAcquisitionDate.getTime() + 60 * 24 * 60 * 60 * 1000);
     } else if (reportDeadlineSelect.value === '3months') {
@@ -829,7 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     console.log("허용 신고 기한:", allowedDeadline);
     
-    // 신고일 입력 필드 (input type="date"인 경우)
     const reportDateInput = document.getElementById('reportDate').value;
     let basePenalty = 0, delayPenalty = 0, totalPenalty = 0, finalPenalty = 0;
     let discountRateText = "없음";
@@ -843,22 +966,19 @@ document.addEventListener('DOMContentLoaded', () => {
         lateDays = Math.ceil(diffTime / (24 * 60 * 60 * 1000));
         console.log("초과일수:", lateDays);
         
-        // 무신고 가산세: 취득세의 20%
         basePenalty = acquisitionTax * 0.2;
-        // 지연 가산세: 초과 일수 × 0.00022 × 취득세
         delayPenalty = acquisitionTax * (lateDays * 0.00022);
         totalPenalty = basePenalty + delayPenalty;
         
-        // 감경율 적용
         let discountFactor = 1.0;
         if (lateDays <= 30) {
-          discountFactor = 0.5;  // 1개월 이내: 50% 감경
+          discountFactor = 0.5;
           discountRateText = "50% 감경";
         } else if (lateDays <= 90) {
-          discountFactor = 0.7;  // 1개월 초과 ~ 3개월 이내: 30% 감경
+          discountFactor = 0.7;
           discountRateText = "30% 감경";
         } else if (lateDays <= 180) {
-          discountFactor = 0.8;  // 3개월 초과 ~ 6개월 이내: 20% 감경
+          discountFactor = 0.8;
           discountRateText = "20% 감경";
         } else {
           discountFactor = 1.0;
@@ -876,9 +996,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const totalTax = baseTotalTax + finalPenalty;
     
-    // ---------------------------
-    // 결과 출력: 취득세, 지방교육세, 농어촌특별세, 그리고 가산세 내역 출력
-    // ---------------------------
     let penaltyHTML = "";
     if (finalPenalty > 0) {
       penaltyHTML = `
@@ -903,5 +1020,5 @@ document.addEventListener('DOMContentLoaded', () => {
       <hr>
       <p><strong>총 세금: ${totalTax.toLocaleString()} 원</strong></p>
     `;
-  });
+  }
 });
