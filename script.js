@@ -16,6 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
       realEstateField.style.display = 'none';
       vehicleField.style.display = 'block';
       otherField.style.display = 'none';
+
+      // 추가: 차량 관련 하위 필드 표시
+      const vehicleAcquisitionTypeField = document.getElementById('vehicleAcquisitionTypeField');
+      const vehicleCongestedField = document.getElementById('vehicleCongestedField');
+      if (vehicleAcquisitionTypeField) {
+        vehicleAcquisitionTypeField.style.display = 'block';
+      }
+      // 취득인 유형 드롭다운 변경 시, 법인 선택이면 과밀억제권역 필드 표시
+      const vehicleAcquisitionType = document.getElementById('vehicleAcquisitionType');
+      vehicleAcquisitionType.addEventListener('change', () => {
+        if (vehicleAcquisitionType.value === 'forProfit' || vehicleAcquisitionType.value === 'nonProfit') {
+          vehicleCongestedField.style.display = 'block';
+        } else {
+          vehicleCongestedField.style.display = 'none';
+        }
+      });
     } else {
       // 'other'
       realEstateField.style.display = 'none';
